@@ -1,0 +1,126 @@
+<style>
+/** Google Analytics Manager
+ * Manage your Google Analytics account in batch via a Google Sheet
+ *
+ * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
+ * @author Rutger Meekers [rutger@meekers.eu]
+ *
+ */
+body {
+    margin: 0;
+}
+h2 {
+    margin: 0 0 12px !important;
+    color: #000 !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
+}
+section {
+    padding-bottom: 12px;
+}
+select[multiple] {
+    text-align: left;
+}
+.help {
+    padding-top: 12px;
+    color: #666;
+    font-size: 11px;
+    line-height: 1.3;
+}
+.row {
+    margin-bottom: 12px;
+}
+.full {
+    width: 100%;
+}
+.select2-results ul.select2-result-sub {
+    padding: 0;
+}
+.select2-container-multi .select2-choices .select2-search-field input {
+    height: auto;
+}
+
+/* Spinner CSS */
+.spinner_block {
+    display: none;
+    position: absolute;
+    top:67px;
+    left:100px;
+    margin: auto;
+    z-index: 100;
+    background-color: #ffffff;
+    opacity: 0.6;
+}
+.spinner {
+    -webkit-animation: rotation 1.4s linear infinite;
+    animation: rotation 1.4s linear infinite;
+}
+@-webkit-keyframes rotation {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(270deg);
+        transform: rotate(270deg);
+    }
+}
+@keyframes rotation {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(270deg);
+        transform: rotate(270deg);
+    }
+}
+.circle {
+    stroke-dasharray: 187;
+    stroke-dashoffset: 0;
+    -webkit-transform-origin: center;
+    -ms-transform-origin: center;
+    transform-origin: center;
+    -webkit-animation: turn 1.4s ease-in-out infinite;
+    animation: turn 1.4s ease-in-out infinite;
+}
+@-webkit-keyframes turn {
+    0% {
+        stroke-dashoffset: 187;
+    }
+
+    50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+        transform: rotate(135deg);
+    }
+
+    100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+        transform: rotate(450deg);
+    }
+}
+@keyframes turn {
+    0% {
+        stroke-dashoffset: 187;
+    }
+
+    50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+        transform: rotate(135deg);
+    }
+
+    100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+        transform: rotate(450deg);
+    }
+}
+svg.spinner {
+    stroke:#ff9800;
+}
+</style>

@@ -12,3 +12,6 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 - [ ] Manage properties
 - [ ] Manage goals
 - [ ] Manage filters
+
+## Credits
+This project is based on this repository: https://github.com/nicholasblexrud/ga-auditor/

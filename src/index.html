@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="//ssl.gstatic.com/docs/script/css/add-ons.css" rel="stylesheet">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet">
+    <?!= HtmlService.createHtmlOutputFromFile('css').getContent(); ?>
+</head>
+<body>
+    <div class="spinner_block">
+        <svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+            <circle class="circle" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+        </svg>
+    </div>
+    <form class="sidebar" name="sidebar">
+
+        <section>
+            <script> var accounts =<?!= getAccountSummary() ?>;</script>
+            <h2>1) Select Accounts</h2>
+            <div class="row form-group">
+                <label for="account">Account</label>
+                <select multiple id="account" name="account" class="full"></select>
+            </div>
+        </section>
+
+        <section>
+            <script> var reports =<?!= getReports() ?>;</script>
+            <h2>2) Select Report</h2>
+            <div class="row form-group">
+                <label for="report">Report</label>
+                <select id="report" class="full" name="report"></select>
+            </div>
+        </section>
+
+        <div class="row form-group">
+            <button class="action" id="submit" type="submit">Audit Account(s)</button> 
+            <button id="close" type="button">Cancel</button>
+        </div>
+
+        <p class="help">If you have questions about using this add-on, check out <a href="https://github.com/rmeekers/Google-Analytics-Manager" target="_blank">GitHub</a> for more detailed instructions.</p>
+
+    </form>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
+    <?!= HtmlService.createHtmlOutputFromFile('js').getContent(); ?>
+</body>
+</html>

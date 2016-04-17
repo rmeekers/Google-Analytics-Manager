@@ -9,6 +9,7 @@
 
 /**
  * Configuration
+ ***************
  */
 
 var colors = {
@@ -23,6 +24,7 @@ var colors = {
 
 /**
  * Helper functions
+ ******************
  */
 
 /**
@@ -38,13 +40,65 @@ function sheetConfig(array) {
 }
 
 /**
+ * onOpen function runs on application open
+ * @param {*} e
+ */
+function onOpen(e) {
+    return SpreadsheetApp
+        .getUi()
+        .createAddonMenu()
+        .addItem('Create report', 'showSidebar')
+        .addToUi();
+}
+
+/**
+ * onInstall runs when the script is installed
+ * @param {*} e
+ */
+function onInstall(e) {
+    onOpen(e);
+}
+
+/**
+ * Show the showSidebar
+ */
+function showSidebar() {
+    var ui = HtmlService
+        .createTemplateFromFile('index')
+        .evaluate()
+        .setTitle('GA Auditor')
+        .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+
+    return SpreadsheetApp
+        .getUi()
+        .showSidebar(ui);
+}
+
+function getReports() {
+
+    return JSON.stringify([{
+        'name': 'Views',
+        'id': 'views'
+    }]);
+}
+
+function saveReportDataFromSidebar(data) {
+    var parsed = JSON.parse(data);
+    return createSheet(parsed.report);
+}
+
+/**
+ * Main functions
+ ****************
+ */
+
+/**
  * Sheet Data
  */
 
 var sheet = {
     init: function(config) {
-        //this.workbook = SpreadsheetApp.getActiveSpreadsheet();
-        this.workbook = SpreadsheetApp.openById('1i2u9IoQMpwwX3rCAnUUtDqzKw1fhiRE4x_XAdl8G0zQ');
+        this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = config.name;
         this.header = config.header;
         this.headerLength = this.header.names[0].length;
@@ -143,8 +197,8 @@ var sheet = {
 var api = {
   views: {
     init: function(config) {
-      this.account = config.account;
-      this.accountName = this.account.name;
+      //this.account = config.account;
+      //this.accountName = this.account.name;
 
       this.header = this.getConfig();
 
@@ -659,49 +713,19 @@ var api = {
   }
 };
 
-/**
- * onOpen function runs on application open
- * @param {*} e
- */
-function onOpen(e) {
-
-  // Create the menu
-  try {
-    SpreadsheetApp.getUi()
-       .createMenu('GA Manager')
-       .addSubMenu(SpreadsheetApp.getUi().createMenu('Views')
-           .addItem('List Views', 'listViews')
-           .addItem('Create / Update Views', 'processViews')
-           )
-       .addSeparator()
-       .addToUi();
-
-  } catch (e) {
-    Browser.msgBox(e.message);
-  }
-}
-
-/**
- * onInstall runs when the script is installed
- * @param {*} e
- */
-function onInstall(e) {
-  onOpen(e);
-}
 
 /**
  * Create sheet, set headers and validation data
- * @param {string} account
  * @param {string} type
  */
-function createSheet(account, type) {
+function createSheet(type) {
     var setup = api[type];
 
     setup
-        .init({ account: account })
+        .init()
         .getConfig(function(data) {
             sheet.init({
-                'name': account.name + ': ' + setup.name,
+                'name': 'GAM: ' + setup.name,
                 'header': setup.header
             }).buildSheet();
         });
@@ -756,13 +780,4 @@ function getAccountSummary() {
     }
 
     return JSON.stringify(items, ['name', 'id', 'webProperties', 'profiles']);
-}
-
-/**
- * Test function for use during development
- */
-function testCreateSheet() {
-  var accounts = Analytics.Management.AccountSummaries.list().getItems();
-
-  return createSheet(accounts[1], 'views');
 }
