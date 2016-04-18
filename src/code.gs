@@ -147,7 +147,23 @@ var sheet = {
         this.sheet.setFrozenRows(2);
 
         cb.call(this);
+    },
 
+    buildDataValidation: function(cb) {
+        var dataRange = this.sheet.getRange(3, 1, this.sheet.getMaxRows(), this.headerLength);
+        var allData = this.sheet.getRange(3, 1, this.sheet.getMaxRows(), this.headerLength);
+        Logger.log(this.header.dataValidation);
+        var dataRule = SpreadsheetApp.newDataValidation().requireValueInList(this.header.dataValidation).build();
+
+        // clear existing data
+        if (!dataRange.isBlank()) {
+            allData.clearContent();
+        }
+
+        // add data to sheet
+        dataRange.setDataValidation(dataRule);
+
+        cb.call(this);
     },
 
     insertData: function(cb) {
@@ -175,7 +191,9 @@ var sheet = {
     buildSheet: function() {
       this.buildTitle(function() {
         this.buildHeader(function() {
-          this.cleanup();
+            this.buildDataValidation(function() {
+                this.cleanup();
+            });
         });
       });
     },
@@ -196,22 +214,31 @@ var sheet = {
  */
 var api = {
   views: {
-    init: function(config) {
-      //this.account = config.account;
-      //this.accountName = this.account.name;
-
+    init: function(cb) {
       this.header = this.getConfig();
-
+      cb();
       return this;
+    },
+    account: function(config) {
+        this.account = config.account;
+        this.accountName = this.account.name;
+
+        return this;
     },
     name: 'Views',
     getConfig: function() {
-      var data = [{
-          name: 'Include'
+        var data = [{
+          name: 'Include',
+          dataValidation: [
+            'Yes',
+            'No'
+          ]
         },{
-          name: 'webPropertyId'
+          name: 'webPropertyId',
+          dataValidation: []
         },{
-          name: 'name'
+          name: 'name',
+          dataValidation: []
         },{
           name: 'botFilteringEnabled',
           dataValidation: [
@@ -260,11 +287,14 @@ var api = {
             'FALSE'
           ]
         },{
-          name: 'excludeQueryParameters'
+          name: 'excludeQueryParameters',
+          dataValidation: []
         },{
-          name: 'siteSearchCategoryParameters'
+          name: 'siteSearchCategoryParameters',
+          dataValidation: []
         },{
-          name: 'siteSearchQueryParameters'
+          name: 'siteSearchQueryParameters',
+          dataValidation: []
         },{
           name: 'stripSiteSearchCategoryParameters',
           dataValidation: [
@@ -704,11 +734,13 @@ var api = {
             'APP'
           ]
         },{
-          name: 'websiteUrl'
+          name: 'websiteUrl',
+          dataValidation: []
         },{
-          name: 'viewID'
-      }];
-      return sheetConfig(data);
+          name: 'viewID',
+          dataValidation: []
+        }];
+        return sheetConfig(data);
     }
   }
 };
@@ -722,15 +754,20 @@ function createSheet(type) {
     var setup = api[type];
 
     setup
-        .init()
-        .getConfig(function(data) {
-            sheet.init({
-                'name': 'GAM: ' + setup.name,
-                'header': setup.header
-            }).buildSheet();
+        //.init()
+        .init(function() {
+            sheet
+                .init({
+                    'name': 'GAM: ' + setup.name,
+                    'header': setup.header
+                })
+                .buildSheet();
         });
 }
 
+function testCreateSheet() {
+    createSheet('views');
+}
 /**
  * Process the views
  */
