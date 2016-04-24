@@ -117,6 +117,23 @@ var sheet = {
         return this;
     },
 
+    /*
+     * Define the number of columns needed in the sheet and add or remove columns
+     */
+    setNumberOfColumns: function(cb) {
+        var maxColumns = this.sheet.getMaxColumns();
+        var numberOfColumnsNeeded = this.headerLength;
+
+        if (maxColumns - numberOfColumnsNeeded == 0) {
+            this.sheet.deleteColumns(numberOfColumns + 1, maxColumns - numberOfColumnsNeeded);
+        }
+        else if (maxColumns - numberOfColumnsNeeded < 0) {
+            this.sheet.insertColumns(this.sheet.getLastColumn(), numberOfColumnsNeeded - maxColumns);
+        }
+
+        cb.call(this);
+    },
+
     buildTitle: function(cb) {
         var rowHeight = 35;
         var titleRow = this.sheet.setRowHeight(1, rowHeight).getRange(1, 1, 1, this.headerLength);
@@ -162,6 +179,7 @@ var sheet = {
 
         // dataValidation should be set per column, so we have to loop over the dataValidationArray
         for (var i = 0; i < dataValidationArray.length; i++) {
+
             // Only set dataValidation when the config is present for a column
             if (dataValidationArray[i]) {
                 var dataRange = this.sheet.getRange(3, i + 1, this.sheet.getMaxRows(), 1);
@@ -205,23 +223,28 @@ var sheet = {
     },
 
     buildSheet: function() {
-      this.buildTitle(function() {
-        this.buildHeader(function() {
-            this.buildDataValidation(function() {
-                this.cleanup();
+        this.setNumberOfColumns(function() {
+            this.buildTitle(function() {
+                this.buildHeader(function() {
+                    this.buildDataValidation(function() {
+                        this.cleanup();
+                    });
+                });
             });
         });
-      });
+      
     },
 
     buildData: function() {
-      this.buildTitle(function() {
-          this.buildHeader(function() {
-              this.insertData(function() {
-                  this.cleanup();
-              });
-          });
-      });
+        this.setNumberOfColumns(function() {
+            this.buildTitle(function() {
+                this.buildHeader(function() {
+                    this.insertData(function() {
+                        this.cleanup();
+                    });
+                });
+            });
+        });
     }
 };
 
