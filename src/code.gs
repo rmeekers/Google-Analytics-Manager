@@ -35,7 +35,14 @@ function sheetConfig(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
         colors: [array.map(function(element) { return element.color || colors.blue; })],
-        dataValidation: [array.map(function(element) { return element.dataValidation; })]
+        dataValidation: array.map(function(element) {
+            if (element.dataValidation) {
+                return element.dataValidation;
+            }
+            else {
+                return;
+            }
+        })
     };
 }
 
@@ -150,18 +157,27 @@ var sheet = {
     },
 
     buildDataValidation: function(cb) {
-        var dataRange = this.sheet.getRange(3, 1, this.sheet.getMaxRows(), this.headerLength);
-        var allData = this.sheet.getRange(3, 1, this.sheet.getMaxRows(), this.headerLength);
-        Logger.log(this.header.dataValidation);
-        var dataRule = SpreadsheetApp.newDataValidation().requireValueInList(this.header.dataValidation).build();
 
-        // clear existing data
-        if (!dataRange.isBlank()) {
-            allData.clearContent();
+        var dataValidationArray = this.header.dataValidation;
+
+        // dataValidation should be set per column, so we have to loop over the dataValidationArray
+        for (var i = 0; i < dataValidationArray.length; i++) {
+            // Only set dataValidation when the config is present for a column
+            if (dataValidationArray[i]) {
+                var dataRange = this.sheet.getRange(3, i + 1, this.sheet.getMaxRows(), 1);
+                dataRule = SpreadsheetApp.newDataValidation()
+                            .requireValueInList(dataValidationArray[i], true)
+                            .build();
+
+                // clear existing data
+                if (!dataRange.isBlank()) {
+                    dataRange.clearContent();
+                }
+
+                // add dataValidation to the sheet
+                dataRange.setDataValidation(dataRule);
+            }
         }
-
-        // add data to sheet
-        dataRange.setDataValidation(dataRule);
 
         cb.call(this);
     },
@@ -234,11 +250,9 @@ var api = {
             'No'
           ]
         },{
-          name: 'webPropertyId',
-          dataValidation: []
+          name: 'webPropertyId'
         },{
-          name: 'name',
-          dataValidation: []
+          name: 'name'
         },{
           name: 'botFilteringEnabled',
           dataValidation: [
@@ -287,14 +301,11 @@ var api = {
             'FALSE'
           ]
         },{
-          name: 'excludeQueryParameters',
-          dataValidation: []
+          name: 'excludeQueryParameters'
         },{
-          name: 'siteSearchCategoryParameters',
-          dataValidation: []
+          name: 'siteSearchCategoryParameters'
         },{
-          name: 'siteSearchQueryParameters',
-          dataValidation: []
+          name: 'siteSearchQueryParameters'
         },{
           name: 'stripSiteSearchCategoryParameters',
           dataValidation: [
@@ -734,11 +745,9 @@ var api = {
             'APP'
           ]
         },{
-          name: 'websiteUrl',
-          dataValidation: []
+          name: 'websiteUrl'
         },{
-          name: 'viewID',
-          dataValidation: []
+          name: 'viewID'
         }];
         return sheetConfig(data);
     }

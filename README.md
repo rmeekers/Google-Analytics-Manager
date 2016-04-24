@@ -5,7 +5,8 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 
 ## Backlog
 
-- [ ] Manage views: Create sheet
+- [x] Manage views: Create sheet
+- [ ] Verify positions of dataRange.clearContent()
 - [ ] Manage views: listViews in sheet
 - [ ] Manage views: updateViews from sheet
 - [ ] Manage views: insertViews from sheet
