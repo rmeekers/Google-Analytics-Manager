@@ -63,7 +63,7 @@ function onOpen(e) {
     ui = SpreadsheetApp.getUi();
     return ui
         .createMenu('GA Manager')
-        .addItem('Create report', 'showSidebar')
+        .addItem('Audit GA', 'showSidebar')
         .addSeparator()
         .addSubMenu(ui.createMenu('Advanced')
             .addItem('Insert Properties Sheet', 'createSheetProperties')
