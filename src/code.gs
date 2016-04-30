@@ -63,11 +63,49 @@ function replaceUndefinedInArray(array, value) {
  * @param {*} e
  */
 function onOpen(e) {
-    return SpreadsheetApp
-        .getUi()
+    ui = SpreadsheetApp.getUi();
+    return ui
         .createAddonMenu()
         .addItem('Create report', 'showSidebar')
+        .addSeparator()
+        .addSubMenu(ui.createMenu('Advanced')
+            .addItem('Insert Properties Sheet', 'createSheetProperties')
+            .addItem('Insert Views Sheet', 'createSheetViews'))
         .addToUi();
+}
+
+/**
+ * Helper function to create a new Properties sheet from the menu
+ */
+function createSheetProperties() {
+    var ui = SpreadsheetApp.getUi();
+
+    var result = ui.alert(
+        'Pay attention',
+        'If there is already a sheet named \'GAM: Properties\' that sheet will be reinitialized. ' +
+        'If you want to start over, please delete the existing sheet first and re-run this function',
+            ui.ButtonSet.OK_CANCEL);
+
+    if (result == ui.Button.OK) {
+        createSheet('properties');
+    }
+}
+
+/**
+ * Helper function to create a new Views sheet from the menu
+ */
+function createSheetViews() {
+    var ui = SpreadsheetApp.getUi();
+    
+    var result = ui.alert(
+        'Pay attention',
+        'If there is already a sheet named \'GAM: Views\' that sheet will be reinitialized. ' +
+        'If you want to start over, please delete the existing sheet first and re-run this function',
+            ui.ButtonSet.OK_CANCEL);
+
+    if (result == ui.Button.OK) {
+        createSheet('views');
+    }
 }
 
 /**
@@ -85,7 +123,7 @@ function showSidebar() {
     var ui = HtmlService
         .createTemplateFromFile('index')
         .evaluate()
-        .setTitle('GA Auditor')
+        .setTitle('GA Manager')
         .setSandboxMode(HtmlService.SandboxMode.IFRAME);
 
     return SpreadsheetApp
@@ -94,14 +132,15 @@ function showSidebar() {
 }
 
 function getReports() {
-
-    return JSON.stringify([{
-        'name': 'Properties',
-        'id': 'properties'
-    },{
-        'name': 'Views',
-        'id': 'views'
-    }]);
+    var arr = [];
+    for (var p in api) {
+        var o = {
+            name: api[p].name,
+            id: p
+        };
+        arr.push(o);
+    }
+    return JSON.stringify(arr);
 }
 
 function saveReportDataFromSidebar(data) {
@@ -946,7 +985,6 @@ function createSheet(type) {
     var setup = api[type];
 
     setup
-        //.init()
         .initSheet(function() {
             sheet
                 .init({
@@ -955,34 +993,6 @@ function createSheet(type) {
                 })
                 .buildSheet();
         });
-}
-
-/**
- * Process the views
- */
-function processViews() {
-
-}
-
-/**
- * Create new views
- * @param {object} viewData
- * @param {string} accountId
- * @param {string} webPropertyId
- */
-function createViews(viewData, accountId, webPropertyId) {
-
-}
-
-/**
- * Update existing views
- * @param {object} viewData
- * @param {string} accountId
- * @param {string} webPropertyId
- * @param {string} profileId
- */
-function updateViews(viewData, accountId, webPropertyId, profileId) {
-
 }
 
 /**
