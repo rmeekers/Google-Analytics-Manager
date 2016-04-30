@@ -168,7 +168,7 @@ var sheet = {
 
     buildHeader: function(cb) {
         var rowHeight = 35;
-        var headerRow = this.sheet.setRowHeight(2, rowHeight).getRange(2, 1, 1, this.headerLength);
+        var headerRow = this.sheet.setRowHeight(1, rowHeight).getRange(1, 1, 1, this.headerLength);
 
         // add style header row
         headerRow
@@ -180,7 +180,7 @@ var sheet = {
             .setValues(this.header.names);
 
         // freeze the header row
-        this.sheet.setFrozenRows(2);
+        this.sheet.setFrozenRows(1);
 
         cb.call(this);
     },
@@ -194,7 +194,7 @@ var sheet = {
 
             // Only set dataValidation when the config is present for a column
             if (dataValidationArray[i]) {
-                var dataRange = this.sheet.getRange(3, i + 1, this.sheet.getMaxRows(), 1);
+                var dataRange = this.sheet.getRange(2, i + 1, this.sheet.getMaxRows(), 1);
                 dataRule = SpreadsheetApp.newDataValidation()
                             .requireValueInList(dataValidationArray[i], true)
                             .build();
@@ -211,7 +211,7 @@ var sheet = {
      * Insert data into the sheet
      */
     insertData: function(cb) {
-        var dataRange = this.sheet.getRange(3, 1, this.data.length, this.headerLength);
+        var dataRange = this.sheet.getRange(2, 1, this.data.length, this.headerLength);
 
         dataRange.setValues(this.data);
 
