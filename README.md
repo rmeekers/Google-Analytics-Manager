@@ -24,7 +24,7 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 - [ ] Insert / Update Goals
 
 ### Bugs
-- [ ] Verify positions of dataRange.clearContent()
+- [x] Verify positions of dataRange.clearContent()
 
 
 ## Installation

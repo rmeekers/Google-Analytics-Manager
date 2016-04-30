@@ -82,8 +82,8 @@ function createSheetProperties() {
 
     var result = ui.alert(
         'Pay attention',
-        'If there is already a sheet named \'GAM: Properties\' that sheet will be reinitialized. ' +
-        'If you want to start over, please delete the existing sheet first and re-run this function',
+        'If there is already a sheet named \'GAM: Properties\' that sheet will be reinitialized ' +
+        '(all content will be cleared), otherwise a new one will be inserted',
             ui.ButtonSet.OK_CANCEL);
 
     if (result == ui.Button.OK) {
@@ -99,8 +99,8 @@ function createSheetViews() {
     
     var result = ui.alert(
         'Pay attention',
-        'If there is already a sheet named \'GAM: Views\' that sheet will be reinitialized. ' +
-        'If you want to start over, please delete the existing sheet first and re-run this function',
+        'If there is already a sheet named \'GAM: Views\' that sheet will be reinitialized ' +
+        '(all content will be cleared), otherwise a new one will be inserted',
             ui.ButtonSet.OK_CANCEL);
 
     if (result == ui.Button.OK) {
@@ -192,7 +192,7 @@ var sheet = {
     },
 
     /**
-     * Clear existing the existing sheet
+     * Clear the existing sheet
      */
     clearSheet: function(cb) {
         var range = this.sheet.getRange(1, 1, this.sheet.getMaxRows(), this.sheet.getMaxColumns());
@@ -266,9 +266,11 @@ var sheet = {
 
     buildSheet: function() {
         this.setNumberOfColumns(function() {
-            this.buildHeader(function() {
-                this.buildDataValidation(function() {
-                    this.cleanup();
+            this.clearSheet(function() {
+                this.buildHeader(function() {
+                    this.buildDataValidation(function() {
+                        this.cleanup();
+                    });
                 });
             });
         });
