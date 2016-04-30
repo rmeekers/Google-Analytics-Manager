@@ -1,19 +1,31 @@
 # Google-Analytics-Manager
 Tool to manage your Google Analytics accounts via a Google Sheet.
 
->Work in progress; not yet functional.
+## Development Backlog (Status)
 
-## Backlog
+### General
+- [x] Create sheet
+- [x] Retrieve API data
+- [ ] Functional Documentation
+- [ ] Code Documentation
 
-- [x] Manage views: Create sheet
+### GA Specific assets
+- [x] List Properties
+- [ ] Insert / Update Properties
+- [x] List Views
+- [ ] Insert / Update Views
+- [ ] List Filters
+- [ ] Insert / Update Filters
+- [ ] List Custom Dimensions
+- [ ] Insert / Update Custom Dimensions
+- [ ] List Custom Metrics
+- [ ] Insert / Update Custom Metrics
+- [ ] List Goals
+- [ ] Insert / Update Goals
+
+### Bugs
 - [ ] Verify positions of dataRange.clearContent()
-- [ ] Manage views: listViews in sheet
-- [ ] Manage views: updateViews from sheet
-- [ ] Manage views: insertViews from sheet
-- [ ] Manage properties
-- [ ] Manage goals
-- [ ] Manage filters
-- [ ] Documentation
+
 
 ## Installation
 
