@@ -163,26 +163,6 @@ var sheet = {
         cb.call(this);
     },
 
-    buildTitle: function(cb) {
-        var rowHeight = 35;
-        var titleRow = this.sheet.setRowHeight(1, rowHeight).getRange(1, 1, 1, this.headerLength);
-        var titleCell = this.sheet.getRange(1, 1);
-
-        titleRow
-            .setBackground(colors.grey)
-            .setFontColor(colors.white)
-            .setFontSize(12)
-            .setFontWeight('bold')
-            .setVerticalAlignment('middle')
-            .setHorizontalAlignment('left')
-            .mergeAcross();
-
-        titleCell
-            .setValue(this.name);
-
-        cb.call(this);
-    },
-
     buildHeader: function(cb) {
         var rowHeight = 35;
         var headerRow = this.sheet.setRowHeight(2, rowHeight).getRange(2, 1, 1, this.headerLength);
@@ -244,11 +224,9 @@ var sheet = {
 
     buildSheet: function() {
         this.setNumberOfColumns(function() {
-            this.buildTitle(function() {
-                this.buildHeader(function() {
-                    this.buildDataValidation(function() {
-                        this.cleanup();
-                    });
+            this.buildHeader(function() {
+                this.buildDataValidation(function() {
+                    this.cleanup();
                 });
             });
         });
@@ -258,12 +236,10 @@ var sheet = {
     buildData: function() {
         this.setNumberOfColumns(function() {
             this.clearSheet(function() {
-                this.buildTitle(function() {
-                    this.buildHeader(function() {
-                        this.buildDataValidation(function() {
-                            this.insertData(function() {
-                                this.cleanup();
-                            });
+                this.buildHeader(function() {
+                    this.buildDataValidation(function() {
+                        this.insertData(function() {
+                            this.cleanup();
                         });
                     });
                 });
