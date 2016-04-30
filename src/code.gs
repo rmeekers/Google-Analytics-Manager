@@ -974,6 +974,81 @@ var api = {
             cb(results);
         }
     },
+    filterLinks: {
+        initSheet: function(cb) {
+            this.header = this.getConfig();
+
+            cb();
+
+            return this;
+        },
+        initData: function(config) {
+            this.account = config.account;
+            this.accountName = this.account.name;
+
+            this.header = this.getConfig();
+
+            return this;
+        },
+        name: 'Filter Links',
+        getConfig: function() {
+            var data = [
+                {
+                    name: 'Include',
+                    dataValidation: [
+                        'Yes',
+                        'No'
+                    ]
+                },{
+                    name: 'Account Name'
+                },
+                {
+                    name: 'Property Name'
+                },{
+                    name: 'Property Id'
+                },{
+                    name: 'View Name'
+                },{
+                    name: 'Name'
+                },{
+                    name: 'ID'
+                }
+            ];
+            return sheetConfig(data);
+        },
+        requestData: function(account, property, view, cb) {
+            var flList = Analytics.Management.ProfileFilterLinks.list(account, property, view).getItems();
+            return cb.call(this, flList);
+        },
+        getData: function(cb) {
+            var results = [];
+
+            this.account.forEach(function(account) {
+                account.webProperties.forEach(function(property) {
+                    property.profiles.forEach(function(view) {
+                        this.requestData(account.id, property.id, view.id, function(flList) {
+                            flList.forEach(function(fl) {
+                                var defaults = [
+                                    '',
+                                    account.name,
+                                    property.name,
+                                    property.id,
+                                    view.name,
+                                    fl.filterRef.name,
+                                    fl.filterRef.id
+                                ];
+                                defaults = replaceUndefinedInArray(defaults, '');
+
+                                results.push(defaults);
+                            }, this);
+                        });
+                    }, this);
+                }, this);
+            }, this);
+
+            cb(results);
+        }
+    },
     customDimensions: {
         initSheet: function(cb) {
             this.header = this.getConfig();
@@ -1028,7 +1103,6 @@ var api = {
             return sheetConfig(data);
         },
         requestData: function(account, property, cb) {
-            Logger.log(account + '<= Account - Property =>' + property)
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
             return cb.call(this, cdList);
         },
@@ -1036,7 +1110,6 @@ var api = {
             var results = [];
 
             this.account.forEach(function(account) {
-                Logger.log(account);
                 account.webProperties.forEach(function(property) {
                     this.requestData(account.id, property.id, function(cdList) {
                         cdList.forEach(function(cd) {
