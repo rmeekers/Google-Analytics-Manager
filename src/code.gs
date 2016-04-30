@@ -233,6 +233,7 @@ var sheet = {
                 var dataRange = this.sheet.getRange(2, i + 1, this.sheet.getMaxRows(), 1);
                 dataRule = SpreadsheetApp.newDataValidation()
                             .requireValueInList(dataValidationArray[i], true)
+                            .setAllowInvalid(false)
                             .build();
 
                 // add dataValidation to the sheet
