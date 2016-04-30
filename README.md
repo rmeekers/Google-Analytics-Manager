@@ -16,7 +16,7 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 - [ ] Insert / Update Views
 - [ ] List Filters
 - [ ] Insert / Update Filters
-- [ ] List Custom Dimensions
+- [x] List Custom Dimensions
 - [ ] Insert / Update Custom Dimensions
 - [ ] List Custom Metrics
 - [ ] Insert / Update Custom Metrics

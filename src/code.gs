@@ -13,13 +13,10 @@
  */
 
 var colors = {
-  blue: '#4d90fe',
-  white: '#ffffff',
-  purple: '#c27ba0',
-  yellow: '#e7fe2b',
-  grey: '#666666',
-  valid: '#0fc357',
-  invalid: '#e06666'
+  blue: '#2196F3',
+  white: '#FFFFFF',
+  valid: '#4CAF50',
+  invalid: '#D32F2F'
 };
 
 /**
@@ -96,7 +93,7 @@ function createSheetProperties() {
  */
 function createSheetViews() {
     var ui = SpreadsheetApp.getUi();
-    
+
     var result = ui.alert(
         'Pay attention',
         'If there is already a sheet named \'GAM: Views\' that sheet will be reinitialized ' +
@@ -206,7 +203,7 @@ var sheet = {
     },
 
     buildHeader: function(cb) {
-        var rowHeight = 35;
+        var rowHeight = 30;
         var headerRow = this.sheet.setRowHeight(1, rowHeight).getRange(1, 1, 1, this.headerLength);
 
         // add style header row
@@ -324,9 +321,9 @@ var api = {
                 },{
                     name: 'Account Name'
                 },{
-                    name: 'Property Name'
+                    name: 'Name'
                 },{
-                    name: 'Property ID'
+                    name: 'ID'
                 },{
                     name: 'Industry',
                     dataValidation: [
@@ -434,9 +431,9 @@ var api = {
                 },{
                     name: 'Property ID'
                 },{
-                    name: 'View Name'
+                    name: 'Name'
                 },{
-                    name: 'View ID'
+                    name: 'ID'
                 },{
                     name: 'Bot Filtering Enabled',
                     dataValidation: [
@@ -964,6 +961,93 @@ var api = {
                                 view.timezone,
                                 view.type,
                                 view.websiteUrl
+                            ];
+                            defaults = replaceUndefinedInArray(defaults, '');
+
+                            results.push(defaults);
+                        }, this);
+                    });
+                }, this);
+            }, this);
+
+            cb(results);
+        }
+    },
+    customDimensions: {
+        initSheet: function(cb) {
+            this.header = this.getConfig();
+
+            cb();
+
+            return this;
+        },
+        initData: function(config) {
+            this.account = config.account;
+            this.accountName = this.account.name;
+
+            this.header = this.getConfig();
+
+            return this;
+        },
+        name: 'Custom Dimensions',
+        getConfig: function() {
+            var data = [
+                {
+                    name: 'Include',
+                    dataValidation: [
+                        'Yes',
+                        'No'
+                    ]
+                },{
+                    name: 'Account Name'
+                },{
+                    name: 'Property Name'
+                },{
+                    name: 'Property ID'
+                },{
+                    name: 'Name'
+                },{
+                    name: 'Index'
+                },{
+                    name: 'Scope',
+                    dataValidation: [
+                        'HIT',
+                        'SESSION',
+                        'USER',
+                        'PRODUCT'
+                    ]
+                },{
+                    name: 'Active',
+                    dataValidation: [
+                        'TRUE',
+                        'FALSE'
+                    ]
+                }
+            ];
+            return sheetConfig(data);
+        },
+        requestData: function(account, property, cb) {
+            Logger.log(account + '<= Account - Property =>' + property)
+            var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
+            return cb.call(this, cdList);
+        },
+        getData: function(cb) {
+            var results = [];
+
+            this.account.forEach(function(account) {
+                Logger.log(account);
+                account.webProperties.forEach(function(property) {
+                    this.requestData(account.id, property.id, function(cdList) {
+                        cdList.forEach(function(cd) {
+                            var defaults = [
+                                '',
+                                account.name,
+                                property.name,
+                                property.id,
+                                cd.name,
+                                cd.index,
+                                cd.scope,
+                                cd.active
                             ];
                             defaults = replaceUndefinedInArray(defaults, '');
 
