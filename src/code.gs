@@ -65,7 +65,7 @@ function replaceUndefinedInArray(array, value) {
 function onOpen(e) {
     ui = SpreadsheetApp.getUi();
     return ui
-        .createAddonMenu()
+        .createMenu('GA Manager')
         .addItem('Create report', 'showSidebar')
         .addSeparator()
         .addSubMenu(ui.createMenu('Advanced')
