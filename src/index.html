@@ -15,9 +15,8 @@
 
         <section>
             <script> var accounts =<?!= getAccountSummary() ?>;</script>
-            <h2>1) Select Accounts</h2>
+            <h2>1) Select Account(s)</h2>
             <div class="row form-group">
-                <label for="account">Account</label>
                 <select multiple id="account" name="account" class="full"></select>
             </div>
         </section>
@@ -26,7 +25,6 @@
             <script> var reports =<?!= getReports() ?>;</script>
             <h2>2) Select Report</h2>
             <div class="row form-group">
-                <label for="report">Report</label>
                 <select id="report" class="full" name="report"></select>
             </div>
         </section>

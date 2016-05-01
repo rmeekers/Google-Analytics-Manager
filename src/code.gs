@@ -13,10 +13,14 @@
  */
 
 var colors = {
-  blue: '#2196F3',
-  white: '#FFFFFF',
-  valid: '#4CAF50',
-  invalid: '#D32F2F'
+  primary: '#4CAF50',
+  primaryDark: '#388E3C',
+  primaryLight: '#C8E6C9',
+  primaryText: '#FFFFFF',
+  accent: '#FFC107',
+  text: '#212121',
+  textSecondary: '#727272',
+  divider: '#B6B6B6'
 };
 
 /**
@@ -31,7 +35,7 @@ var colors = {
 function sheetConfig(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
-        colors: [array.map(function(element) { return element.color || colors.blue; })],
+        colors: [array.map(function(element) { return element.color || colors.primary; })],
         dataValidation: array.map(function(element) {
             if (element.dataValidation) {
                 return element.dataValidation;
@@ -209,7 +213,7 @@ var sheet = {
         // add style header row
         headerRow
             .setBackgrounds(this.header.colors)
-            .setFontColor(colors.white)
+            .setFontColor(colors.primaryText)
             .setFontSize(12)
             .setFontWeight('bold')
             .setVerticalAlignment('middle')
