@@ -1,9 +1,138 @@
+<!--
+/** Google Analytics Manager
+ * Manage your Google Analytics account in batch via a Google Sheet
+ *
+ * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
+ * @author Rutger Meekers [rutger@meekers.eu]
+ */
+-->
 <!DOCTYPE html>
 <html>
 <head>
     <link href="//ssl.gstatic.com/docs/script/css/add-ons.css" rel="stylesheet">
     <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet">
-    <?!= HtmlService.createHtmlOutputFromFile('css').getContent(); ?>
+    <style>
+        body {
+            margin: 0;
+        }
+        h2 {
+            margin: 0 0 12px !important;
+            color: #000 !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+        }
+        section {
+            padding-bottom: 12px;
+        }
+        select[multiple] {
+            text-align: left;
+        }
+        .help {
+            padding-top: 12px;
+            color: #666;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        .row {
+            margin-bottom: 12px;
+        }
+        .full {
+            width: 100%;
+        }
+        .select2-results ul.select2-result-sub {
+            padding: 0;
+        }
+        .select2-container-multi .select2-choices .select2-search-field input {
+            height: auto;
+        }
+
+        /* Spinner CSS */
+        .spinner_block {
+            display: none;
+            z-index: 1000;
+            background-color: #ffffff;
+            opacity: 0.75;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        .spinner {
+            -webkit-animation: rotation 1.4s linear infinite;
+            animation: rotation 1.4s linear infinite;
+            left: 45%;
+            top: 35%;
+            position: fixed;
+            z-index: 1100;
+        }
+        @-webkit-keyframes rotation {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+            }
+        }
+        @keyframes rotation {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+            }
+        }
+        .circle {
+            stroke-dasharray: 187;
+            stroke-dashoffset: 0;
+            -webkit-transform-origin: center;
+            -ms-transform-origin: center;
+            transform-origin: center;
+            -webkit-animation: turn 1.4s ease-in-out infinite;
+            animation: turn 1.4s ease-in-out infinite;
+        }
+        @-webkit-keyframes turn {
+            0% {
+                stroke-dashoffset: 187;
+            }
+
+            50% {
+                stroke-dashoffset: 46.75;
+                -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+            }
+
+            100% {
+                stroke-dashoffset: 187;
+                -webkit-transform: rotate(450deg);
+                transform: rotate(450deg);
+            }
+        }
+        @keyframes turn {
+            0% {
+                stroke-dashoffset: 187;
+            }
+
+            50% {
+                stroke-dashoffset: 46.75;
+                -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+            }
+
+            100% {
+                stroke-dashoffset: 187;
+                -webkit-transform: rotate(450deg);
+                transform: rotate(450deg);
+            }
+        }
+        svg.spinner {
+            stroke:#ff9800;
+        }
+    </style>
 </head>
 <body>
     <div class="spinner_block">
@@ -39,6 +168,120 @@
     </form>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
-    <?!= HtmlService.createHtmlOutputFromFile('js').getContent(); ?>
+    <script>
+        /**
+         * Global google, accounts, Browser, reports
+         */
+
+        /**
+         * Handle User Exceptions
+         * @param {string} message
+         */
+        function UserException(message) {
+            this.messsage = message;
+            this.name = 'UserException';
+        }
+
+        /**
+         * Handle User Exceptions
+         * @param {array} array
+         * @param {string} selector
+         */
+        function appendOptionsToSelect(array, selector) {
+            var select = $(selector);
+            var isAccount = selector === '#account';
+            select.empty();
+            if (!array.length) {
+                if (isAccount) {
+                    throw new UserException(
+                        'We couldn\'t find any Google Analytics accounts. ' +
+                        'Please log in with another Google account.'
+                    );
+                }
+                throw new UserException('We we\'re unable to locate the report list. Please try again.');
+            }
+            array.forEach(function(element, index) {
+                var setValue = isAccount ? index : element.id;
+                var option = $('<option>')
+                    .attr('value', setValue)
+                    .text(element.name);
+                select.append(option);
+            });
+        }
+
+        /**
+         * Audit data
+         */
+        var audit = {
+            flag: false,
+            spinner: $('.spinner_block'),
+            form: $('.sidebar_block'),
+            init: function() {
+                this.showAccounts(accounts);
+                this.showReports(reports);
+                $('#submit').on('click', $.proxy(audit.submit, audit));
+                $('#close').on('click', $.proxy(audit.close, audit));
+            },
+            showAccounts: function(accounts) {
+                try {
+                    appendOptionsToSelect(accounts, '#account');
+                } catch (error) {
+                    this.error(error);
+                }
+            },
+            showReports: function(reports) {
+                try {
+                    appendOptionsToSelect(reports, '#report');
+                } catch (error) {
+                    this.error(error);
+                }
+            },
+            submit: function(e) {
+                var accountList = [];
+                for (var i = 0; i < $('#account').val().length; i++) {
+                    accountList.push(accounts[$('#account').val()[i]]);
+                }
+                var data = JSON.stringify({
+                    ids: accountList,
+                    report: $('#report').val()
+                });
+                e.preventDefault();
+                this.form.hide();
+                this.spinner.show();
+                google.script.run
+                    .withSuccessHandler(this.success.bind(this))
+                    .withFailureHandler(this.error.bind(this))
+                    .saveReportDataFromSidebar(data);
+            },
+            success: function() {
+                this.close();
+            },
+            error: function(error) {
+                if (error.message === 'Quota Error: User Rate Limit Exceeded.') {
+                    return this.errorHandleUserRateLimit();
+                }
+                this.close();
+                window.alert(error);
+            },
+            errorHandleUserRateLimit: function() {
+                if (!this.flag) {
+                    this.flag = true;
+                    window.alert('It looks like you\'ve you hit the user rate limit. ' +
+                        'We\'ll continue to ask for the data, but feel free to cancel ' +
+                        'the request and try again later.');
+                }
+                return setTimeout(function() {
+                    $('#submit').trigger('click');
+                }, 1000);
+            },
+            close: function() {
+                google.script.host.close();
+            }
+        };
+        $(function() {
+            // onReady - initialized
+            audit.init();
+        });
+    </script>
 </body>
 </html>
