@@ -43,6 +43,14 @@ function sheetConfig(array) {
             else {
                 return;
             }
+        },
+        regexValidation: array.map(function(element) {
+            if (element.regexValidation) {
+                return element.regexValidation;
+            }
+            else {
+                return;
+            }
         })
     };
 }
@@ -172,6 +180,27 @@ var sheet = {
 
         return this;
     },
+    // TODO: get API[type]
+    initValidation: function(config) {
+        this.workbook = SpreadsheetApp.getActiveSpreadsheet();
+        this.name = config.name;
+        this.data = config.data;
+        this.sheet = this.workbook.getSheetByName(this.name);
+
+        return this;
+    },
+    // TODO: do something usefull after validation
+    validate: function() {
+        for (var i = 0; i < this.data.length; ++i) {
+            // Compare data array to regexValidation
+            if (this.data[i][0] == this.sheet.regexValidation) {
+                Logger.log('validate OK');
+            }
+            else {
+              Logger.log('validate NOK');
+            }
+        }
+    },
 
     /*
      * Define the number of columns needed in the sheet and add or remove columns
@@ -291,6 +320,10 @@ var sheet = {
                 });
             });            
         });
+    },
+
+    validateData: function() {
+        this.validate();
     }
 };
 
@@ -326,9 +359,13 @@ var api = {
                 },{
                     name: 'Account Name'
                 },{
-                    name: 'Name'
+                    name: 'Account ID'
                 },{
-                    name: 'ID'
+                    name: 'Name',
+                    regexValidation: /.*\S.*/
+                },{
+                    name: 'ID',
+                    regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Industry',
                     dataValidation: [
@@ -359,7 +396,8 @@ var api = {
                         'SHOPPING',
                         'SPORTS',
                         'TRAVEL'
-                    ]
+                    ],
+                    regexValidation: /.*\S.*/
                 },{
                     name: 'Default View ID'
                 },{
@@ -369,7 +407,8 @@ var api = {
                         'FALSE'
                     ]
                 },{
-                    name: 'Website URL'
+                    name: 'Website URL',
+                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
                 }
             ];
             return sheetConfig(data);
@@ -387,6 +426,7 @@ var api = {
                         var defaults = [
                             '',
                             account.name,
+                            account.id,
                             property.name,
                             property.id,
                             property.industryVertical,
@@ -1184,6 +1224,21 @@ function generateReport(account, type) {
                 })
                 .buildData();
         });
+}
+// TODO: finalize & cleanup function
+// TODO: install change detection trigger programatically
+function onChangeValidation(event) {
+    var sheet = event.source.getActiveSheet();
+    var sheetName = sheet.getName();
+    var cell = sheet.getActiveCell();
+    var rowValues = sheet.getRange(cell.getRow(), 1, 1, sheet.getLastColumn()).getValues();
+
+    sheet
+        .initValidation({
+            'name': sheetName,
+            'data': rowValues
+        })
+        .validateData();
 }
 
 /**
