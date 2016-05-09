@@ -192,7 +192,7 @@ var sheet = {
               var s = this.data[r][c];
               var regex = this.regexValidation[c];
               if (regex) {
-                if (!s.match(regex)) {
+                if (s.match(regex)) {
                   Logger.log('Validate OK: ' + s);
                 }
                 else {
@@ -361,10 +361,10 @@ var api = {
                     name: 'Account ID'
                 },{
                     name: 'Name',
-                    regexValidation: '/.*\\S.*/'
+                    regexValidation: /.*\S.*/
                 },{
                     name: 'ID',
-                    regexValidation: '/(UA|YT|MO)-\\d+-\\d+/'
+                    regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Industry',
                     dataValidation: [
@@ -396,7 +396,7 @@ var api = {
                         'SPORTS',
                         'TRAVEL'
                     ],
-                    regexValidation: '/.*\\S.*/'
+                    regexValidation: /.*\S.*/
                 },{
                     name: 'Default View ID'
                 },{
@@ -407,7 +407,7 @@ var api = {
                     ]
                 },{
                     name: 'Website URL',
-                    regexValidation: '/^(?:(?:https?|ftp):\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\\.(?:[a-z\u00a1-\uffff]{2,}))\\.?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i'
+                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i 
                 }
             ];
             return sheetConfig(data);
@@ -1142,7 +1142,7 @@ var api = {
             ];
             return sheetConfig(data);
         },
-        requestData: function(account, property, cb) {
+        getApiData: function(account, property, cb) {
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
             return cb.call(this, cdList);
         },
@@ -1151,7 +1151,7 @@ var api = {
 
             this.account.forEach(function(account) {
                 account.webProperties.forEach(function(property) {
-                    this.requestData(account.id, property.id, function(cdList) {
+                    this.getApiData(account.id, property.id, function(cdList) {
                         cdList.forEach(function(cd) {
                             var defaults = [
                                 '',
@@ -1172,6 +1172,12 @@ var api = {
             }, this);
 
             cb(results);
+        },
+        /*
+         * TODO: finish function
+         */
+        insertApiData: function(account, property, cb) {
+            var cdInsert = Analytics.Management.CustomDimensions.insert();
         }
     }
 };
