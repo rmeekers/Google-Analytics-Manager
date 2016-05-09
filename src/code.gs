@@ -36,22 +36,22 @@ function sheetConfig(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
         colors: [array.map(function(element) { return element.color || colors.primary; })],
-        dataValidation: array.map(function(element) {
+        dataValidation: [array.map(function(element) {
             if (element.dataValidation) {
                 return element.dataValidation;
             }
             else {
                 return;
             }
-        },
-        regexValidation: array.map(function(element) {
+        })],
+        regexValidation: [array.map(function(element) {
             if (element.regexValidation) {
                 return element.regexValidation;
             }
             else {
                 return;
             }
-        })
+        })]
     };
 }
 
@@ -180,12 +180,18 @@ var sheet = {
 
         return this;
     },
-    // TODO: get API[type]
     initValidation: function(config) {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = config.name;
         this.data = config.data;
         this.sheet = this.workbook.getSheetByName(this.name);
+
+        // get the api[type] based on the sheet name
+        for (var p in api) {
+            if (this.name == 'GAM: ' + api[p].name) {
+                this.apiType = p;
+            }
+        }
 
         return this;
     },
@@ -305,7 +311,6 @@ var sheet = {
                 });
             });
         });
-      
     },
 
     buildData: function() {
@@ -318,7 +323,7 @@ var sheet = {
                         });
                     });
                 });
-            });            
+            });
         });
     },
 
@@ -1228,10 +1233,10 @@ function generateReport(account, type) {
 // TODO: finalize & cleanup function
 // TODO: install change detection trigger programatically
 function onChangeValidation(event) {
-    var sheet = event.source.getActiveSheet();
-    var sheetName = sheet.getName();
-    var cell = sheet.getActiveCell();
-    var rowValues = sheet.getRange(cell.getRow(), 1, 1, sheet.getLastColumn()).getValues();
+    var s = event.source.getActiveSheet();
+    var sheetName = s.getName();
+    var cell = s.getActiveCell();
+    var rowValues = s.getRange(cell.getRow(), 1, 1, s.getLastColumn()).getValues();
 
     sheet
         .initValidation({
