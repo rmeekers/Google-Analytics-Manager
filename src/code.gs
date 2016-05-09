@@ -36,22 +36,15 @@ function sheetConfig(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
         colors: [array.map(function(element) { return element.color || colors.primary; })],
-        dataValidation: [array.map(function(element) {
+        dataValidation: array.map(function(element) {
             if (element.dataValidation) {
                 return element.dataValidation;
             }
             else {
                 return;
             }
-        })],
-        regexValidation: [array.map(function(element) {
-            if (element.regexValidation) {
-                return element.regexValidation;
-            }
-            else {
-                return;
-            }
-        })]
+        }),
+        regexValidation: array.map(function(element) { return element.regexValidation; })
     };
 }
 
@@ -171,8 +164,8 @@ var sheet = {
     init: function(config) {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = config.name;
-        this.header = config.header;
-        this.headerLength = this.header.names[0].length;
+        this.config = config.config;
+        this.headerLength = this.config.names[0].length;
         this.data = config.data;
         this.sheet =
           this.workbook.getSheetByName(this.name) ||
@@ -183,27 +176,29 @@ var sheet = {
     initValidation: function(config) {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = config.name;
+        this.config = config.config;
         this.data = config.data;
         this.sheet = this.workbook.getSheetByName(this.name);
 
-        // get the api[type] based on the sheet name
-        for (var p in api) {
-            if (this.name == 'GAM: ' + api[p].name) {
-                this.apiType = p;
-            }
-        }
+
+        this.regexValidation = this.config.regexValidation;
 
         return this;
     },
     // TODO: do something usefull after validation
     validate: function() {
-        for (var i = 0; i < this.data.length; ++i) {
-            // Compare data array to regexValidation
-            if (this.data[i][0] == this.sheet.regexValidation) {
-                Logger.log('validate OK');
-            }
-            else {
-              Logger.log('validate NOK');
+        for (var r = 0; r < this.data.length; r++) {
+          for (var c = 0; c < this.data[r].length; c++) {
+              var s = this.data[r][c];
+              var regex = this.regexValidation[c];
+              if (regex) {
+                if (!s.match(regex)) {
+                  Logger.log('Validate OK: ' + s);
+                }
+                else {
+                  Logger.log('Validate NOK: ' + s);
+                }
+              }
             }
         }
     },
@@ -247,12 +242,12 @@ var sheet = {
 
         // add style header row
         headerRow
-            .setBackgrounds(this.header.colors)
+            .setBackgrounds(this.config.colors)
             .setFontColor(colors.primaryText)
             .setFontSize(12)
             .setFontWeight('bold')
             .setVerticalAlignment('middle')
-            .setValues(this.header.names);
+            .setValues(this.config.names);
 
         // freeze the header row
         this.sheet.setFrozenRows(1);
@@ -262,7 +257,7 @@ var sheet = {
 
     buildDataValidation: function(cb) {
 
-        var dataValidationArray = this.header.dataValidation;
+        var dataValidationArray = this.config.dataValidation;
 
         // dataValidation should be set per column, so we have to loop over the dataValidationArray
         for (var i = 0; i < dataValidationArray.length; i++) {
@@ -296,7 +291,7 @@ var sheet = {
 
     cleanup: function() {
         // auto resize all columns
-        this.header.names[0].forEach(function(e, i) {
+        this.config.names[0].forEach(function(e, i) {
             this.sheet.autoResizeColumn(i + 1);
         }, this);
     },
@@ -338,7 +333,7 @@ var sheet = {
 var api = {
     properties: {
         initSheet: function(cb) {
-            this.header = this.getConfig();
+            this.config = this.getConfig();
 
             cb();
 
@@ -346,9 +341,8 @@ var api = {
         },
         initData: function(config) {
             this.account = config.account;
-            this.accountName = this.account.name;
 
-            this.header = this.getConfig();
+            this.config = this.getConfig();
 
             return this;
         },
@@ -367,10 +361,10 @@ var api = {
                     name: 'Account ID'
                 },{
                     name: 'Name',
-                    regexValidation: /.*\S.*/
+                    regexValidation: '/.*\\S.*/'
                 },{
                     name: 'ID',
-                    regexValidation: /(UA|YT|MO)-\d+-\d+/
+                    regexValidation: '/(UA|YT|MO)-\\d+-\\d+/'
                 },{
                     name: 'Industry',
                     dataValidation: [
@@ -402,7 +396,7 @@ var api = {
                         'SPORTS',
                         'TRAVEL'
                     ],
-                    regexValidation: /.*\S.*/
+                    regexValidation: '/.*\\S.*/'
                 },{
                     name: 'Default View ID'
                 },{
@@ -413,7 +407,7 @@ var api = {
                     ]
                 },{
                     name: 'Website URL',
-                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
+                    regexValidation: '/^(?:(?:https?|ftp):\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\\.(?:[a-z\u00a1-\uffff]{2,}))\\.?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i'
                 }
             ];
             return sheetConfig(data);
@@ -451,7 +445,7 @@ var api = {
     },
     views: {
         initSheet: function(cb) {
-          this.header = this.getConfig();
+          this.config = this.getConfig();
 
           cb();
 
@@ -459,9 +453,8 @@ var api = {
         },
         initData: function(config) {
             this.account = config.account;
-            this.accountName = this.account.name;
 
-            this.header = this.getConfig();
+            this.config = this.getConfig();
 
             return this;
         },
@@ -1025,7 +1018,7 @@ var api = {
     },
     filterLinks: {
         initSheet: function(cb) {
-            this.header = this.getConfig();
+            this.config = this.getConfig();
 
             cb();
 
@@ -1033,9 +1026,8 @@ var api = {
         },
         initData: function(config) {
             this.account = config.account;
-            this.accountName = this.account.name;
 
-            this.header = this.getConfig();
+            this.config = this.getConfig();
 
             return this;
         },
@@ -1100,7 +1092,7 @@ var api = {
     },
     customDimensions: {
         initSheet: function(cb) {
-            this.header = this.getConfig();
+            this.config = this.getConfig();
 
             cb();
 
@@ -1108,9 +1100,8 @@ var api = {
         },
         initData: function(config) {
             this.account = config.account;
-            this.accountName = this.account.name;
 
-            this.header = this.getConfig();
+            this.config = this.getConfig();
 
             return this;
         },
@@ -1198,7 +1189,7 @@ function createSheet(type) {
             sheet
                 .init({
                     'name': 'GAM: ' + setup.name,
-                    'header': setup.header
+                    'config': setup.config
                 })
                 .buildSheet();
         });
@@ -1224,7 +1215,7 @@ function generateReport(account, type) {
             sheet
                 .init({
                     'name': 'GAM: ' + setup.name,
-                    'header': setup.header,
+                    'config': setup.config,
                     'data': data
                 })
                 .buildData();
@@ -1238,12 +1229,23 @@ function onChangeValidation(event) {
     var cell = s.getActiveCell();
     var rowValues = s.getRange(cell.getRow(), 1, 1, s.getLastColumn()).getValues();
 
-    sheet
-        .initValidation({
-            'name': sheetName,
-            'data': rowValues
-        })
-        .validateData();
+    for (var p in api) {
+        if (sheetName == 'GAM: ' + api[p].name) {
+            var apiType = p;
+        }
+    }
+    var a = api[apiType];
+
+    a
+        .initSheet(function() {
+            sheet
+                .initValidation({
+                    'name': sheetName,
+                    'config': a.config,
+                    'data': rowValues
+                })
+                .validateData();
+        });
 }
 
 /**

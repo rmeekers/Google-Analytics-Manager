@@ -25,6 +25,7 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 
 ### Bugs
 - [x] Verify positions of dataRange.clearContent()
+- [ ] Refactor API init functions
 
 
 ## Installation
