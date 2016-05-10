@@ -31,8 +31,9 @@ var colors = {
 /**
  * Return the sheet settings
  * @param {array} array
+ * @returns {array}
  */
-function createApiSheetConfigArray(array) {
+function createApiSheetColumnConfigArray(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
         colors: [array.map(function(element) { return element.color || colors.primary; })],
@@ -171,9 +172,8 @@ var sheet = {
     init: function(type, name, config, data) {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = name;
-        this.config = config;
+        this.sheetColumnConfig = config;
         this.data = data;
-        
 
         switch(type) {
             case 'initSheet':
@@ -247,12 +247,12 @@ var sheet = {
 
         // add style header row
         headerRow
-            .setBackgrounds(this.config.colors)
+            .setBackgrounds(this.sheetColumnConfig.colors)
             .setFontColor(colors.primaryText)
             .setFontSize(12)
             .setFontWeight('bold')
             .setVerticalAlignment('middle')
-            .setValues(this.config.names);
+            .setValues(this.sheetColumnConfig.names);
 
         // freeze the header row
         this.sheet.setFrozenRows(1);
@@ -262,7 +262,7 @@ var sheet = {
 
     buildDataValidation: function(cb) {
 
-        var dataValidationArray = this.config.dataValidation;
+        var dataValidationArray = this.sheetColumnConfig.dataValidation;
 
         // dataValidation should be set per column, so we have to loop over the dataValidationArray
         for (var i = 0; i < dataValidationArray.length; i++) {
@@ -296,7 +296,7 @@ var sheet = {
 
     cleanup: function() {
         // auto resize all columns
-        this.config.names[0].forEach(function(e, i) {
+        this.sheetColumnConfig.names[0].forEach(function(e, i) {
             this.sheet.autoResizeColumn(i + 1);
         }, this);
     },
@@ -339,7 +339,7 @@ var api = {
     properties: {
         name: 'Properties',
         init: function(type, cb, options) {
-            this.config = this.sheetConfig();
+            this.config = this.sheetColumnConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -355,7 +355,7 @@ var api = {
 
             return this;
         },
-        sheetConfig: function() {
+        sheetColumnConfig: function() {
             var data = [
                 {
                     name: 'Include',
@@ -418,7 +418,7 @@ var api = {
                     regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i 
                 }
             ];
-            return createApiSheetConfigArray(data);
+            return createApiSheetColumnConfigArray(data);
         },
         requestData: function(account, cb) {
             var propertiesList = Analytics.Management.Webproperties.list(account).getItems();
@@ -454,7 +454,7 @@ var api = {
     views: {
         name: 'Views',
         init: function(type, cb, options) {
-            this.config = this.sheetConfig();
+            this.config = this.sheetColumnConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -470,7 +470,7 @@ var api = {
 
             return this;
         },
-        sheetConfig: function() {
+        sheetColumnConfig: function() {
             var data = [
                 {
                     name: 'Include',
@@ -984,7 +984,7 @@ var api = {
                     name: 'Website URL'
                 }
             ];
-            return createApiSheetConfigArray(data);
+            return createApiSheetColumnConfigArray(data);
         },
         requestData: function(account, property, cb) {
             var viewsList = Analytics.Management.Profiles.list(account, property).getItems();
@@ -1030,7 +1030,7 @@ var api = {
     filterLinks: {
         name: 'Filter Links',
         init: function(type, cb, options) {
-            this.config = this.sheetConfig();
+            this.config = this.sheetColumnConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -1046,7 +1046,7 @@ var api = {
 
             return this;
         },
-        sheetConfig: function() {
+        sheetColumnConfig: function() {
             var data = [
                 {
                     name: 'Include',
@@ -1069,7 +1069,7 @@ var api = {
                     name: 'ID'
                 }
             ];
-            return createApiSheetConfigArray(data);
+            return createApiSheetColumnConfigArray(data);
         },
         requestData: function(account, property, view, cb) {
             var flList = Analytics.Management.ProfileFilterLinks.list(account, property, view).getItems();
@@ -1107,7 +1107,7 @@ var api = {
     customDimensions: {
         name: 'Custom Dimensions',
         init: function(type, cb, options) {
-            this.config = this.sheetConfig();
+            this.config = this.sheetColumnConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -1123,7 +1123,7 @@ var api = {
 
             return this;
         },
-        sheetConfig: function() {
+        sheetColumnConfig: function() {
             var data = [
                 {
                     name: 'Include',
@@ -1157,7 +1157,7 @@ var api = {
                     ]
                 }
             ];
-            return createApiSheetConfigArray(data);
+            return createApiSheetColumnConfigArray(data);
         },
         getApiData: function(account, property, cb) {
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
@@ -1228,7 +1228,7 @@ function createSheet(type) {
 }
 
 /**
- * Generate report from a certain type for a given account
+ * Generate report from a certain apiType for the given account(s)
  * @param {array} accounts
  * @param {string} apiType
  */
@@ -1251,10 +1251,10 @@ function generateReport(accounts, apiType) {
 // TODO: finalize & cleanup function
 // TODO: install change detection trigger programatically
 function onChangeValidation(event) {
-    var s = event.source.getActiveSheet();
-    var sheetName = s.getName();
-    var cell = s.getActiveCell();
-    var rowValues = s.getRange(cell.getRow(), 1, 1, s.getLastColumn()).getValues();
+    var activeSheet = event.source.getActiveSheet();
+    var sheetName = activeSheet.getName();
+    var cell = activeSheet.getActiveCell();
+    var rowValues = activeSheet.getRange(cell.getRow(), 1, 1, activeSheet.getLastColumn()).getValues();
 
     // Retrieve API type by looping over the API array
     for (var type in api) {

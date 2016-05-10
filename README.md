@@ -11,14 +11,19 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 
 ### GA Specific assets
 - [x] List Properties
+- [x] Add dataValidation (regex) for the required Properties columns
 - [ ] Insert / Update Properties
 - [x] List Views
+- [ ] Add dataValidation (regex) for the required Views columns
 - [ ] Insert / Update Views
 - [x] List Filter Links
+- [ ] Add dataValidation (regex) for the required Filter Links columns
 - [ ] Insert / Update Filter Links
 - [x] List Custom Dimensions
+- [ ] Add dataValidation (regex) for the required Custom Dimensions columns
 - [ ] Insert / Update Custom Dimensions
 - [ ] List Custom Metrics
+- [ ] Add dataValidation (regex) for the required Custom Metrics columns
 - [ ] Insert / Update Custom Metrics
 - [ ] List Goals
 - [ ] Insert / Update Goals
