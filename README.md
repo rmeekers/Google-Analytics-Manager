@@ -27,6 +27,7 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 - [ ] Insert / Update Custom Metrics
 - [ ] List Goals
 - [ ] Insert / Update Goals
+- [ ] Differentiate between GA Standard and GA Premium and adapt datavalidation to it
 
 ### Bugs
 - [x] Verify positions of dataRange.clearContent()

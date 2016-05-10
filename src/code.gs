@@ -483,7 +483,8 @@ var api = {
                 },{
                     name: 'Property Name'
                 },{
-                    name: 'Property ID'
+                    name: 'Property ID',
+                    regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Name'
                 },{
@@ -528,7 +529,8 @@ var api = {
                         'USD',
                         'VND',
                         'ZAR'
-                    ]
+                    ],
+                    regexValidation: /.*\S.*/
                 },{
                     name: 'eCommerce Tracking',
                     dataValidation: [
@@ -973,15 +975,18 @@ var api = {
                         'Pacific/Tongatapu',
                         'Pacific/Wake',
                         'Pacific/Wallis'
-                    ]
+                    ],
+                    regexValidation: /.*\S.*/
                 },{
                     name: 'Type',
                     dataValidation: [
                         'WEB',
                         'APP'
-                    ]
+                    ],
+                    regexValidation: /.*\S.*/
                 },{
-                    name: 'Website URL'
+                    name: 'Website URL',
+                    regexValidation: /.*\S.*/
                 }
             ];
             return createApiSheetColumnConfigArray(data);
@@ -1060,13 +1065,15 @@ var api = {
                 {
                     name: 'Property Name'
                 },{
-                    name: 'Property Id'
+                    name: 'Property Id',
+                    regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'View Name'
                 },{
                     name: 'Name'
                 },{
-                    name: 'ID'
+                    name: 'ID',
+                    regexValidation: /^[0-9]+$/
                 }
             ];
             return createApiSheetColumnConfigArray(data);
@@ -1136,11 +1143,14 @@ var api = {
                 },{
                     name: 'Property Name'
                 },{
-                    name: 'Property ID'
+                    name: 'Property ID',
+                    regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
-                    name: 'Name'
+                    name: 'Name',
+                    regexValidation: /.*\S.*/
                 },{
-                    name: 'Index'
+                    name: 'Index',
+                    regexValidation: /^[0-9]{1,3}$/
                 },{
                     name: 'Scope',
                     dataValidation: [
@@ -1148,13 +1158,15 @@ var api = {
                         'SESSION',
                         'USER',
                         'PRODUCT'
-                    ]
+                    ],
+                    regexValidation: /.*\S.*/
                 },{
                     name: 'Active',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
-                    ]
+                    ],
+                    regexValidation: /.*\S.*/
                 }
             ];
             return createApiSheetColumnConfigArray(data);
