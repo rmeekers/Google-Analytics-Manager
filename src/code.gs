@@ -32,7 +32,7 @@ var colors = {
  * Return the sheet settings
  * @param {array} array
  */
-function sheetConfig(array) {
+function createApiSheetConfigArray(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
         colors: [array.map(function(element) { return element.color || colors.primary; })],
@@ -418,7 +418,7 @@ var api = {
                     regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i 
                 }
             ];
-            return sheetConfig(data);
+            return createApiSheetConfigArray(data);
         },
         requestData: function(account, cb) {
             var propertiesList = Analytics.Management.Webproperties.list(account).getItems();
@@ -984,7 +984,7 @@ var api = {
                     name: 'Website URL'
                 }
             ];
-            return sheetConfig(data);
+            return createApiSheetConfigArray(data);
         },
         requestData: function(account, property, cb) {
             var viewsList = Analytics.Management.Profiles.list(account, property).getItems();
@@ -1069,7 +1069,7 @@ var api = {
                     name: 'ID'
                 }
             ];
-            return sheetConfig(data);
+            return createApiSheetConfigArray(data);
         },
         requestData: function(account, property, view, cb) {
             var flList = Analytics.Management.ProfileFilterLinks.list(account, property, view).getItems();
@@ -1157,7 +1157,7 @@ var api = {
                     ]
                 }
             ];
-            return sheetConfig(data);
+            return createApiSheetConfigArray(data);
         },
         getApiData: function(account, property, cb) {
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
