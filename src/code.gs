@@ -339,7 +339,7 @@ var api = {
     properties: {
         name: 'Properties',
         init: function(type, cb, options) {
-            this.config = this.getConfig();
+            this.config = this.sheetConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -355,7 +355,7 @@ var api = {
 
             return this;
         },
-        getConfig: function() {
+        sheetConfig: function() {
             var data = [
                 {
                     name: 'Include',
@@ -454,7 +454,7 @@ var api = {
     views: {
         name: 'Views',
         init: function(type, cb, options) {
-            this.config = this.getConfig();
+            this.config = this.sheetConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -470,7 +470,7 @@ var api = {
 
             return this;
         },
-        getConfig: function() {
+        sheetConfig: function() {
             var data = [
                 {
                     name: 'Include',
@@ -1030,7 +1030,7 @@ var api = {
     filterLinks: {
         name: 'Filter Links',
         init: function(type, cb, options) {
-            this.config = this.getConfig();
+            this.config = this.sheetConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -1046,7 +1046,7 @@ var api = {
 
             return this;
         },
-        getConfig: function() {
+        sheetConfig: function() {
             var data = [
                 {
                     name: 'Include',
@@ -1107,7 +1107,7 @@ var api = {
     customDimensions: {
         name: 'Custom Dimensions',
         init: function(type, cb, options) {
-            this.config = this.getConfig();
+            this.config = this.sheetConfig();
 
             switch(type) {
                 case 'createSheet':
@@ -1123,7 +1123,7 @@ var api = {
 
             return this;
         },
-        getConfig: function() {
+        sheetConfig: function() {
             var data = [
                 {
                     name: 'Include',
