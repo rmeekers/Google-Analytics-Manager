@@ -337,21 +337,24 @@ var sheet = {
  */
 var api = {
     properties: {
-        initSheet: function(cb) {
+        name: 'Properties',
+        init: function(type, cb, options) {
             this.config = this.getConfig();
+
+            switch(type) {
+                case 'createSheet':
+                    break;
+                case 'generateReport':
+                    this.account = options.accounts;
+                    break;
+                case 'getConfig':
+                    break;
+            }
 
             cb();
 
             return this;
         },
-        initData: function(config) {
-            this.account = config.account;
-
-            this.config = this.getConfig();
-
-            return this;
-        },
-        name: 'Properties',
         getConfig: function() {
             var data = [
                 {
@@ -449,21 +452,24 @@ var api = {
         }
     },
     views: {
-        initSheet: function(cb) {
-          this.config = this.getConfig();
-
-          cb();
-
-          return this;
-        },
-        initData: function(config) {
-            this.account = config.account;
-
+        name: 'Views',
+        init: function(type, cb, options) {
             this.config = this.getConfig();
+
+            switch(type) {
+                case 'createSheet':
+                    break;
+                case 'generateReport':
+                    this.account = options.accounts;
+                    break;
+                case 'getConfig':
+                    break;
+            }
+
+            cb();
 
             return this;
         },
-        name: 'Views',
         getConfig: function() {
             var data = [
                 {
@@ -1022,21 +1028,24 @@ var api = {
         }
     },
     filterLinks: {
-        initSheet: function(cb) {
+        name: 'Filter Links',
+        init: function(type, cb, options) {
             this.config = this.getConfig();
+
+            switch(type) {
+                case 'createSheet':
+                    break;
+                case 'generateReport':
+                    this.account = options.accounts;
+                    break;
+                case 'getConfig':
+                    break;
+            }
 
             cb();
 
             return this;
         },
-        initData: function(config) {
-            this.account = config.account;
-
-            this.config = this.getConfig();
-
-            return this;
-        },
-        name: 'Filter Links',
         getConfig: function() {
             var data = [
                 {
@@ -1096,21 +1105,24 @@ var api = {
         }
     },
     customDimensions: {
-        initSheet: function(cb) {
+        name: 'Custom Dimensions',
+        init: function(type, cb, options) {
             this.config = this.getConfig();
+
+            switch(type) {
+                case 'createSheet':
+                    break;
+                case 'generateReport':
+                    this.account = options.accounts;
+                    break;
+                case 'getConfig':
+                    break;
+            }
 
             cb();
 
             return this;
         },
-        initData: function(config) {
-            this.account = config.account;
-
-            this.config = this.getConfig();
-
-            return this;
-        },
-        name: 'Custom Dimensions',
         getConfig: function() {
             var data = [
                 {
@@ -1184,6 +1196,19 @@ var api = {
         insertApiData: function(account, property, cb) {
             var cdInsert = Analytics.Management.CustomDimensions.insert();
         }
+    },
+    accountSummaries: {
+        name: 'Account Summaries',
+        requestAccountSummaryList: function() {
+            var items = Analytics.Management.AccountSummaries.list().getItems();
+
+            // Return an empty array if there is no result
+            if (!items) {
+                return [];
+            }
+
+            return items;
+        }
     }
 };
 
@@ -1193,37 +1218,35 @@ var api = {
  * @param {string} type
  */
 function createSheet(type) {
-    var setup = api[type];
+    var callApi = api[type];
 
-    setup
-        .initSheet(function() {
-            sheet
-                .init('initSheet', 'GAM: ' + setup.name, setup.config)
-                .buildSheet();
-        });
+    callApi.init('createSheet', function() {
+        sheet
+            .init('initSheet', 'GAM: ' + callApi.name, callApi.config)
+            .buildSheet();
+    });
 }
 
 /**
  * Generate report from a certain type for a given account
- * @param {object} account
- * @param {string} type
+ * @param {array} accounts
+ * @param {string} apiType
  */
-function generateReport(account, type) {
-    var setup = api[type];
+function generateReport(accounts, apiType) {
+    var callApi = api[apiType];
 
-    setup
-        .initData({ account: account })
-        .getData(function(data) {
-
+    callApi.init('generateReport', function() {
+        callApi.getData(function(data) {
             // Verify if data is present
             if (data[0] === undefined || !data[0].length) {
                 throw new Error('No data found for ' + type + ' in ' + account.name + '.');
             }
 
             sheet
-                .init('initSheet', setup.name, setup.config, data)
+                .init('initSheet', 'GAM: ' + callApi.name, callApi.config, data)
                 .buildData();
         });
+    }, {'accounts': accounts});
 }
 // TODO: finalize & cleanup function
 // TODO: install change detection trigger programatically
@@ -1233,19 +1256,19 @@ function onChangeValidation(event) {
     var cell = s.getActiveCell();
     var rowValues = s.getRange(cell.getRow(), 1, 1, s.getLastColumn()).getValues();
 
-    for (var p in api) {
-        if (sheetName == 'GAM: ' + api[p].name) {
-            var apiType = p;
+    // Retrieve API type by looping over the API array
+    for (var type in api) {
+        if (sheetName == 'GAM: ' + api[type].name) {
+            var apiType = type;
         }
     }
-    var a = api[apiType];
+    var callApi = api[apiType];
 
-    a
-        .initSheet(function() {
-            sheet
-                .init('validateData', sheetName, a.config, rowValues)
-                .validateData();
-        });
+    callApi.init('getConfig', function() {
+        sheet
+            .init('validateData', sheetName, callApi.config, rowValues)
+            .validateData();
+    });
 }
 
 /**
@@ -1253,11 +1276,6 @@ function onChangeValidation(event) {
  * @return {array}
  */
 function getAccountSummary() {
-    var items = Analytics.Management.AccountSummaries.list().getItems();
-
-    if (!items) {
-        return [];
-    }
-
+    var items = api.accountSummaries.requestAccountSummaryList();
     return JSON.stringify(items, ['name', 'id', 'webProperties', 'profiles']);
 }

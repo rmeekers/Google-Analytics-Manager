@@ -26,7 +26,7 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 ### Bugs
 - [x] Verify positions of dataRange.clearContent()
 - [x] Refactor sheet init functions
-- [ ] Refactor API init functions
+- [x] Refactor API init functions
 - [ ] Make sure onChange validation keeps working when a column gets deleted
 
 
