@@ -161,27 +161,32 @@ function saveReportDataFromSidebar(data) {
  */
 
 var sheet = {
-    init: function(config) {
+    /*
+     * Initiate Sheet functions and prepare some basic stuff
+     * @param {string} type
+     * @param {string} name
+     * @param {array} config
+     * @param {array} data
+     */
+    init: function(type, name, config, data) {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
-        this.name = config.name;
-        this.config = config.config;
-        this.headerLength = this.config.names[0].length;
-        this.data = config.data;
-        this.sheet =
-          this.workbook.getSheetByName(this.name) ||
-          this.workbook.insertSheet(this.name);
+        this.name = name;
+        this.config = config;
+        this.data = data;
+        
 
-        return this;
-    },
-    initValidation: function(config) {
-        this.workbook = SpreadsheetApp.getActiveSpreadsheet();
-        this.name = config.name;
-        this.config = config.config;
-        this.data = config.data;
-        this.sheet = this.workbook.getSheetByName(this.name);
-
-
-        this.regexValidation = this.config.regexValidation;
+        switch(type) {
+            case 'initSheet':
+                this.sheet =
+                  this.workbook.getSheetByName(name) ||
+                  this.workbook.insertSheet(name);
+                this.headerLength = config.names[0].length;
+                break;
+            case 'validateData':
+                this.sheet = this.workbook.getSheetByName(this.name);
+                this.regexValidation = config.regexValidation;
+                break;
+        }
 
         return this;
     },
@@ -201,7 +206,7 @@ var sheet = {
               }
             }
         }
-    },
+    },  
 
     /*
      * Define the number of columns needed in the sheet and add or remove columns
@@ -1193,10 +1198,7 @@ function createSheet(type) {
     setup
         .initSheet(function() {
             sheet
-                .init({
-                    'name': 'GAM: ' + setup.name,
-                    'config': setup.config
-                })
+                .init('initSheet', 'GAM: ' + setup.name, setup.config)
                 .buildSheet();
         });
 }
@@ -1219,11 +1221,7 @@ function generateReport(account, type) {
             }
 
             sheet
-                .init({
-                    'name': 'GAM: ' + setup.name,
-                    'config': setup.config,
-                    'data': data
-                })
+                .init('initSheet', setup.name, setup.config, data)
                 .buildData();
         });
 }
@@ -1245,11 +1243,7 @@ function onChangeValidation(event) {
     a
         .initSheet(function() {
             sheet
-                .initValidation({
-                    'name': sheetName,
-                    'config': a.config,
-                    'data': rowValues
-                })
+                .init('validateData', sheetName, a.config, rowValues)
                 .validateData();
         });
 }
