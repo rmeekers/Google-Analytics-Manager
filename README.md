@@ -34,6 +34,7 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 - [x] Refactor sheet init functions
 - [x] Refactor API init functions
 - [ ] Make sure onChange validation keeps working when a column gets deleted
+- [ ] Verify onChange validation to validate all rows with changes
 
 
 ## Installation
