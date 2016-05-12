@@ -112,6 +112,16 @@ function createSheetViews() {
 }
 
 /**
+ * Helper function to transpose an array
+ * @param {array} a
+ * @return {array}
+ */
+function transposeArray(a)
+{
+  return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
+}
+
+/**
  * onInstall runs when the script is installed
  * @param {*} e
  */
@@ -173,7 +183,7 @@ var sheet = {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = name;
         this.sheetColumnConfig = config;
-        this.data = data;
+        this.data = transposeArray(data);
 
         switch(type) {
             case 'initSheet':
@@ -193,17 +203,17 @@ var sheet = {
     // TODO: do something usefull after validation
     validate: function() {
         for (var r = 0; r < this.data.length; r++) {
-          for (var c = 0; c < this.data[r].length; c++) {
-              var s = this.data[r][c];
-              var regex = this.regexValidation[c];
-              if (regex) {
-                if (s.match(regex)) {
-                  Logger.log('Validate OK: ' + s);
-                }
-                else {
-                  Logger.log('Validate NOK: ' + s);
-                }
-              }
+            var regex = this.regexValidation[r];
+            if (regex) {
+                for (var c = 0; c < this.data[r].length; c++) {
+                    var s = this.data[r][c];
+                    if (s.match(regex)) {
+                      Logger.log('Validate OK: ' + s);
+                    }
+                    else {
+                      Logger.log('Validate NOK: ' + s);
+                    }
+                } 
             }
         }
     },  
