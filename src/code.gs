@@ -122,6 +122,20 @@ function transposeArray(a)
 }
 
 /**
+ * Helper function to define the API Type based on the sheet name
+ * @param {string} sheetName
+ * @return {string}
+ */
+function getApiTypeBySheetName(sheetName) {
+    // Retrieve API type by looping over the API array
+    for (var type in api) {
+        if (sheetName == 'GAM: ' + api[type].name) {
+            return type;
+        }
+    }
+}
+
+/**
  * onInstall runs when the script is installed
  * @param {*} e
  */
@@ -359,6 +373,8 @@ var api = {
                     break;
                 case 'getConfig':
                     break;
+                case 'insertData':
+                    break;
             }
 
             cb();
@@ -473,6 +489,8 @@ var api = {
                     this.account = options.accounts;
                     break;
                 case 'getConfig':
+                    break;
+                case 'insertData':
                     break;
             }
 
@@ -1055,6 +1073,8 @@ var api = {
                     break;
                 case 'getConfig':
                     break;
+                case 'insertData':
+                    break;
             }
 
             cb();
@@ -1133,6 +1153,8 @@ var api = {
                     this.account = options.accounts;
                     break;
                 case 'getConfig':
+                    break;
+                case 'insertData':
                     break;
             }
 
@@ -1213,10 +1235,26 @@ var api = {
             cb(results);
         },
         /*
-         * TODO: finish function
+         * Insert new data in Google Analytics via the API
+         * TODO: review function
          */
-        insertApiData: function(account, property, cb) {
+        insertApiData: function(account, property, data, cb) {
             var cdInsert = Analytics.Management.CustomDimensions.insert();
+            return cb.call(this, cdInsert);
+        },
+        /*
+         * Update existing data in Google Analytics via the API
+         * TODO: review function
+         */
+        updateApiData: function(account, customDimension, property, data, cb) {
+            var cdUpdate = Analytics.Management.CustomDimensions.update();
+            return cb.call(this, cdUpdate);
+        },
+        /*
+         * TODO: finish function, differentiate between insert and update
+         */
+        insertData: function(cb) {
+            var results = this.data;
         }
     },
     accountSummaries: {
@@ -1272,19 +1310,13 @@ function generateReport(accounts, apiType) {
 }
 // TODO: finalize & cleanup function
 // TODO: install change detection trigger programatically
+// TODO: update rowValues range based on the range provided in the event
 function onChangeValidation(event) {
     var activeSheet = event.source.getActiveSheet();
     var sheetName = activeSheet.getName();
     var cell = activeSheet.getActiveCell();
     var rowValues = activeSheet.getRange(cell.getRow(), 1, 1, activeSheet.getLastColumn()).getValues();
-
-    // Retrieve API type by looping over the API array
-    for (var type in api) {
-        if (sheetName == 'GAM: ' + api[type].name) {
-            var apiType = type;
-        }
-    }
-    var callApi = api[apiType];
+    var callApi = api[getApiTypeBySheetName(sheetName)];
 
     callApi.init('getConfig', function() {
         sheet
@@ -1293,6 +1325,32 @@ function onChangeValidation(event) {
     });
 }
 
+/**
+ * Insert / update data marked for inclusion from the active sheet to Google Analytics
+ */
+function insertData() {
+    var activeSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var sheetRange = activeSheet.getDataRange();
+    var sheetColumns = sheetRange.getNumColumns();
+    var sheetRows = sheetRange.getNumRows();
+    // Get the values of the sheet excluding the header row
+    var sheetDataRange = activeSheet.getRange(2, 1, sheetRows, sheetColumns).getValues();
+    var insertDataRange = [];
+    var callApi = api[getApiTypeBySheetName(sheetName)];
+
+    // Iterate over the rows in the sheetDataRange
+    for (var r = 0; r < sheetDataRange.length; r++) {
+        // Only process rows marked for inclusion
+        if (sheetDataRange[r][0] == 'Yes') {
+            // Add rows to array insertDataRange
+            insertDataRange.push(sheetDataRange[r]);
+        }
+    }
+
+    callApi.init('insertData', function() {
+        callApi.insertData(insertDataRange);
+    });
+}
 /**
  * Retrieve Account Summary from the Google Analytics Management API
  * @return {array}
