@@ -197,18 +197,19 @@ var sheet = {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = name;
         this.sheetColumnConfig = config;
-        this.data = transposeArray(data);
 
         switch(type) {
             case 'initSheet':
                 this.sheet =
-                  this.workbook.getSheetByName(name) ||
-                  this.workbook.insertSheet(name);
+                  this.workbook.getSheetByName(this.name) ||
+                  this.workbook.insertSheet(this.name);
                 this.headerLength = config.names[0].length;
+                this.data = data;
                 break;
             case 'validateData':
                 this.sheet = this.workbook.getSheetByName(this.name);
                 this.regexValidation = config.regexValidation;
+                this.data = transposeArray(data);
                 break;
         }
 
@@ -216,16 +217,17 @@ var sheet = {
     },
     // TODO: do something usefull after validation
     validate: function() {
-        for (var r = 0; r < this.data.length; r++) {
-            var regex = this.regexValidation[r];
+        for (var row = 0; row < this.data.length; row++) {
+            var regex = this.regexValidation[row];
+            // Only validate a cell if there is a regexValidation defined
             if (regex) {
-                for (var c = 0; c < this.data[r].length; c++) {
-                    var s = this.data[r][c];
-                    if (s.match(regex)) {
-                      Logger.log('Validate OK: ' + s);
+                for (var column = 0; column < this.data[row].length; column++) {
+                    var string = String(this.data[row][column]);
+                    if (string.match(regex)) {
+                      Logger.log('Validate OK: ' + string);
                     }
                     else {
-                      Logger.log('Validate NOK: ' + s);
+                      Logger.log('Validate NOK: ' + string);
                     }
                 } 
             }
