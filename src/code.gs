@@ -1018,7 +1018,7 @@ var api = {
                     regexValidation: /.*\S.*/
                 },{
                     name: 'Website URL',
-                    regexValidation: /.*\S.*/
+                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i 
                 }
             ];
             return createApiSheetColumnConfigArray(data);
@@ -1329,12 +1329,14 @@ function generateReport(accounts, apiType) {
 }
 // TODO: finalize & cleanup function
 // TODO: install change detection trigger programatically
-// TODO: update rowValues range based on the range provided in the event
 function onChangeValidation(event) {
     var activeSheet = event.source.getActiveSheet();
     var sheetName = activeSheet.getName();
-    var cell = activeSheet.getActiveCell();
-    var rowValues = activeSheet.getRange(cell.getRow(), 1, 1, activeSheet.getLastColumn()).getValues();
+    var activeRange = activeSheet.getActiveRange();
+    var numRows = activeRange.getNumRows();
+    var firstRow = activeRange.getLastRow() - numRows + 1;
+    var lastColumn = activeSheet.getLastColumn();
+    var rowValues = activeSheet.getRange(firstRow, 1, numRows, lastColumn).getValues();
     var callApi = api[getApiTypeBySheetName(sheetName)];
 
     callApi.init('getConfig', function() {

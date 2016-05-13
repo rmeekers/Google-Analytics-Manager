@@ -30,12 +30,12 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 - [ ] Differentiate between GA Standard and GA Premium and adapt datavalidation to it
 
 ### Bugs
+- [ ] Make sure onChange validation keeps working when a column gets deleted
+- [ ] Before running datavalidation, verify the columns / sheet structure
 - [x] Verify positions of dataRange.clearContent()
 - [x] Refactor sheet init functions
 - [x] Refactor API init functions
-- [ ] Make sure onChange validation keeps working when a column gets deleted
-- [ ] Verify onChange validation to validate all rows with changes
-- [ ] Before running datavalidation, verify the columns / sheet structure
+- [x] Verify onChange validation to validate all rows with changes
 
 
 ## Installation
