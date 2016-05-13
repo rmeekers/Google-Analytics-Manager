@@ -509,6 +509,8 @@ var api = {
                 },{
                     name: 'Account Name'
                 },{
+                    name: 'Account ID'
+                },{
                     name: 'Property Name'
                 },{
                     name: 'Property ID',
@@ -1033,6 +1035,7 @@ var api = {
                             var defaults = [
                                 '',
                                 account.name,
+                                account.id,
                                 property.name,
                                 property.id,
                                 view.name,
@@ -1091,8 +1094,9 @@ var api = {
                     ]
                 },{
                     name: 'Account Name'
-                },
-                {
+                },{
+                    name: 'Account ID'
+                },{
                     name: 'Property Name'
                 },{
                     name: 'Property Id',
@@ -1123,6 +1127,7 @@ var api = {
                                 var defaults = [
                                     '',
                                     account.name,
+                                    account.id,
                                     property.name,
                                     property.id,
                                     view.name,
@@ -1173,6 +1178,8 @@ var api = {
                 },{
                     name: 'Account Name'
                 },{
+                    name: 'Account ID'
+                },{
                     name: 'Property Name'
                 },{
                     name: 'Property ID',
@@ -1203,20 +1210,41 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        getApiData: function(account, property, cb) {
+        listApiData: function(account, property, cb) {
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
             return cb.call(this, cdList);
+        },
+        getApiData: function(account, property, dimensionId, cb) {
+            var cdItem = Analytics.Management.CustomDimensions.get(account, property, dimensionId);
+            return cb.call(this, cdItem);
+        },
+        /*
+         * Insert new data in Google Analytics via the API
+         * TODO: review function
+         */
+        insertApiData: function(account, property, data, cb) {
+            var cdInsert = Analytics.Management.CustomDimensions.insert();
+            return cb.call(this, cdInsert);
+        },
+        /*
+         * Update existing data in Google Analytics via the API
+         * TODO: review function
+         */
+        updateApiData: function(account, customDimension, property, data, cb) {
+            var cdUpdate = Analytics.Management.CustomDimensions.update();
+            return cb.call(this, cdUpdate);
         },
         getData: function(cb) {
             var results = [];
 
             this.account.forEach(function(account) {
                 account.webProperties.forEach(function(property) {
-                    this.getApiData(account.id, property.id, function(cdList) {
+                    this.listApiData(account.id, property.id, function(cdList) {
                         cdList.forEach(function(cd) {
                             var defaults = [
                                 '',
                                 account.name,
+                                account.id,
                                 property.name,
                                 property.id,
                                 cd.name,
@@ -1235,26 +1263,15 @@ var api = {
             cb(results);
         },
         /*
-         * Insert new data in Google Analytics via the API
-         * TODO: review function
-         */
-        insertApiData: function(account, property, data, cb) {
-            var cdInsert = Analytics.Management.CustomDimensions.insert();
-            return cb.call(this, cdInsert);
-        },
-        /*
-         * Update existing data in Google Analytics via the API
-         * TODO: review function
-         */
-        updateApiData: function(account, customDimension, property, data, cb) {
-            var cdUpdate = Analytics.Management.CustomDimensions.update();
-            return cb.call(this, cdUpdate);
-        },
-        /*
          * TODO: finish function, differentiate between insert and update
          */
-        insertData: function(cb) {
-            var results = this.data;
+        insertData: function(insertDataRange) {
+            /*
+            for (var i = 0, i < insertDataRange.length, i++) {
+                if(this.getApiData(insertDataRange[i][2], insertDataRange[i][4], insertDataRange[i][6])) {
+
+                }
+            }*/
         }
     },
     accountSummaries: {
