@@ -1356,20 +1356,20 @@ function insertData() {
     var sheetRows = sheetRange.getNumRows();
     // Get the values of the sheet excluding the header row
     var sheetDataRange = activeSheet.getRange(2, 1, sheetRows, sheetColumns).getValues();
-    var insertDataRange = [];
+    var markedDataRange = [];
     var callApi = api[getApiTypeBySheetName(sheetName)];
 
     // Iterate over the rows in the sheetDataRange
     for (var r = 0; r < sheetDataRange.length; r++) {
         // Only process rows marked for inclusion
         if (sheetDataRange[r][0] == 'Yes') {
-            // Add rows to array insertDataRange
-            insertDataRange.push(sheetDataRange[r]);
+            // Add rows to array markedDataRange
+            markedDataRange.push(sheetDataRange[r]);
         }
     }
 
     callApi.init('insertData', function() {
-        callApi.insertData(insertDataRange);
+        callApi.insertData(markedDataRange);
     });
 }
 /**
