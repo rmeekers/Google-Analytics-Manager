@@ -70,6 +70,7 @@ function onOpen(e) {
     return ui
         .createMenu('GA Manager')
         .addItem('Audit GA', 'showSidebar')
+        .addItem('Insert / Update Data in GA', 'insertData')
         .addSeparator()
         .addSubMenu(ui.createMenu('Advanced')
             .addItem('Insert Properties Sheet', 'createSheetProperties')
@@ -1218,7 +1219,7 @@ var api = {
         },
         getApiData: function(account, property, dimensionId, cb) {
             var cdItem = Analytics.Management.CustomDimensions.get(account, property, dimensionId);
-            return cb.call(this, cdItem);
+            return cdItem;
         },
         /*
          * Insert new data in Google Analytics via the API
@@ -1267,13 +1268,23 @@ var api = {
         /*
          * TODO: finish function, differentiate between insert and update
          */
-        insertData: function(insertDataRange) {
-            /*
-            for (var i = 0, i < insertDataRange.length, i++) {
-                if(this.getApiData(insertDataRange[i][2], insertDataRange[i][4], insertDataRange[i][6])) {
+        prepareInsertData: function(insertDataRange) {
+            var insertData = [];
+            var updateData = [];
 
+            for (var i = 0; i < insertDataRange.length; i++) {
+                var account = insertDataRange[i][2];
+                var property = insertDataRange[i][4];
+                var customDimensionId = 'ga:dimension' + insertDataRange[i][6];
+
+                // TODO: implement better way to determine if a CD exists already or not
+                if(this.getApiData(account, property, customDimensionId)) {
+                    Logger.log('getApiData = true');
                 }
-            }*/
+                else {
+                    Logger.log('getApiData = false');
+                }
+            }
         }
     },
     accountSummaries: {
@@ -1351,6 +1362,7 @@ function onChangeValidation(event) {
  */
 function insertData() {
     var activeSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var sheetName = activeSheet.getName();
     var sheetRange = activeSheet.getDataRange();
     var sheetColumns = sheetRange.getNumColumns();
     var sheetRows = sheetRange.getNumRows();
@@ -1369,7 +1381,7 @@ function insertData() {
     }
 
     callApi.init('insertData', function() {
-        callApi.insertData(markedDataRange);
+        callApi.prepareInsertData(markedDataRange);
     });
 }
 /**
