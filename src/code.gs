@@ -70,7 +70,7 @@ function onOpen(e) {
     return ui
         .createMenu('GA Manager')
         .addItem('Audit GA', 'showSidebar')
-        .addItem('Insert / Update Data in GA', 'insertData')
+        .addItem('Insert / Update Data from active sheet to GA', 'insertData')
         .addSeparator()
         .addSubMenu(ui.createMenu('Advanced')
             .addItem('Insert Properties Sheet', 'createSheetProperties')
@@ -1380,6 +1380,7 @@ function insertData() {
         }
     }
 
+    // TODO: verify if markedDataRange array <> empty
     callApi.init('insertData', function() {
         callApi.prepareInsertData(markedDataRange);
     });
