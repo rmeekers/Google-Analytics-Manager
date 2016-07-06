@@ -1221,21 +1221,29 @@ var api = {
             var cdItem = Analytics.Management.CustomDimensions.get(account, property, dimensionId);
             return cdItem;
         },
-        /*
-         * Insert new data in Google Analytics via the API
-         * TODO: review function
-         */
-        insertApiData: function(account, property, data, cb) {
-            var cdInsert = Analytics.Management.CustomDimensions.insert();
-            return cb.call(this, cdInsert);
+        insertApiData: function(data) {
+            var values = {
+                'name': data[5],
+                'index': data[6],
+                'scope': data[7],
+                'active': data[8]
+            };
+            var account = data[2];
+            var property = data[4];
+
+            return Analytics.Management.CustomDimensions.insert(values, account, property);
         },
-        /*
-         * Update existing data in Google Analytics via the API
-         * TODO: review function
-         */
-        updateApiData: function(account, customDimension, property, data, cb) {
-            var cdUpdate = Analytics.Management.CustomDimensions.update();
-            return cb.call(this, cdUpdate);
+        updateApiData: function(data) {
+            var values = {
+                'name': data[5],
+                'scope': data[7],
+                'active': data[8]
+            };
+            var account = data[2];
+            var property = data[4];
+            var customDimension = 'ga:dimension' + data[6];
+
+            return Analytics.Management.CustomDimensions.update(values, account, property, customDimension);
         },
         getData: function(cb) {
             var results = [];
@@ -1265,10 +1273,9 @@ var api = {
 
             cb(results);
         },
-        /*
-         * TODO: finish function, differentiate between insert and update
-         */
         prepareInsertData: function(insertDataRange) {
+
+            // Split insertDataRange in data that needs to be inserted and data that needs to be updated
             var insertData = [];
             var updateData = [];
 
@@ -1278,11 +1285,34 @@ var api = {
                 var customDimensionId = 'ga:dimension' + insertDataRange[i][6];
 
                 // TODO: implement better way to determine if a CD exists already or not
-                if(this.getApiData(account, property, customDimensionId)) {
-                    Logger.log('getApiData = true');
+                // A possibility could be to retrieve all CD's (list) for a given property
+                // but in that case this loop should be adjusted so that it groups all
+                // lines from the same property
+                try {
+                    var existingCD = this.getApiData(account, property, customDimensionId);
                 }
-                else {
+                catch(e) {
+                    var existingCD = false;
+                }
+                if(existingCD && existingCD != false) {
+                    Logger.log('getApiData = true');
+                    updateData.push(insertDataRange[i]);
+                }
+                else if (existingCD == false) {
                     Logger.log('getApiData = false');
+                    insertData.push(insertDataRange[i]);
+                }
+            }
+
+            if (insertData.length > 0){
+                for (var i = 0; i < insertData.length; i++) {
+                    this.insertApiData(insertData[i]);
+                }
+            }
+
+            if (updateData.length > 0){
+                for (var i = 0; i < updateData.length; i++) {
+                    this.updateApiData(updateData[i]);
                 }
             }
         }
