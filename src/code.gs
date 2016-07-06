@@ -62,6 +62,32 @@ function replaceUndefinedInArray(array, value) {
 }
 
 /**
+ * Sorts an array of objects
+ *
+ *  @param {array}      array               - Array of objects
+ *  @param {string}     objectParamToSortBy - Name of object parameter to sort by 
+ *  @param {boolean}    sortAscending       - (optional) Sort ascending (default) or decending
+*/
+function sortArrayOfObjectsByParam(array, objectParamToSortBy, sortAscending) {
+
+    // default to true
+    if(sortAscending == undefined || sortAscending != false) {
+        sortAscending = true;
+    }
+
+    if(sortAscending) {
+        array.sort(function (a, b) {
+            return a[objectParamToSortBy] > b[objectParamToSortBy];
+        });
+    }
+    else {
+        array.sort(function (a, b) {
+            return a[objectParamToSortBy] < b[objectParamToSortBy];
+        });
+    }
+}
+
+/**
  * onOpen function runs on application open
  * @param {*} e
  */
