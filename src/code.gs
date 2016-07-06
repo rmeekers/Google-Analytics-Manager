@@ -88,6 +88,15 @@ function sortArrayOfObjectsByParam(array, objectParamToSortBy, sortAscending) {
 }
 
 /**
+ * Display a message to the user
+ *
+ * @param {string} message
+ */
+function displayMessageToUser(message) {
+    SpreadsheetApp.getUi().alert(message);
+}
+
+/**
  * onOpen function runs on application open
  * @param {*} e
  */
@@ -1436,10 +1445,15 @@ function insertData() {
         }
     }
 
-    // TODO: verify if markedDataRange array <> empty
-    callApi.init('insertData', function() {
-        callApi.prepareInsertData(markedDataRange);
-    });
+    if (markedDataRange.length > 0) {
+        // TODO: Add try catch + feedback to the user
+        callApi.init('insertData', function() {
+            callApi.prepareInsertData(markedDataRange);
+        });
+    }
+    else {
+        displayMessageToUser('Please mark at least on row for inclusion.');
+    }
 }
 /**
  * Retrieve Account Summary from the Google Analytics Management API
