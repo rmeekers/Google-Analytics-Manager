@@ -70,6 +70,7 @@ function onOpen(e) {
     return ui
         .createMenu('GA Manager')
         .addItem('Audit GA', 'showSidebar')
+        .addItem('Insert / Update Data from active sheet to GA', 'insertData')
         .addSeparator()
         .addSubMenu(ui.createMenu('Advanced')
             .addItem('Insert Properties Sheet', 'createSheetProperties')
@@ -197,18 +198,19 @@ var sheet = {
         this.workbook = SpreadsheetApp.getActiveSpreadsheet();
         this.name = name;
         this.sheetColumnConfig = config;
-        this.data = transposeArray(data);
 
         switch(type) {
             case 'initSheet':
                 this.sheet =
-                  this.workbook.getSheetByName(name) ||
-                  this.workbook.insertSheet(name);
+                  this.workbook.getSheetByName(this.name) ||
+                  this.workbook.insertSheet(this.name);
                 this.headerLength = config.names[0].length;
+                this.data = data;
                 break;
             case 'validateData':
                 this.sheet = this.workbook.getSheetByName(this.name);
                 this.regexValidation = config.regexValidation;
+                this.data = transposeArray(data);
                 break;
         }
 
@@ -216,16 +218,17 @@ var sheet = {
     },
     // TODO: do something usefull after validation
     validate: function() {
-        for (var r = 0; r < this.data.length; r++) {
-            var regex = this.regexValidation[r];
+        for (var row = 0; row < this.data.length; row++) {
+            var regex = this.regexValidation[row];
+            // Only validate a cell if there is a regexValidation defined
             if (regex) {
-                for (var c = 0; c < this.data[r].length; c++) {
-                    var s = this.data[r][c];
-                    if (s.match(regex)) {
-                      Logger.log('Validate OK: ' + s);
+                for (var column = 0; column < this.data[row].length; column++) {
+                    var string = String(this.data[row][column]);
+                    if (string.match(regex)) {
+                      Logger.log('Validate OK: ' + string);
                     }
                     else {
-                      Logger.log('Validate NOK: ' + s);
+                      Logger.log('Validate NOK: ' + string);
                     }
                 } 
             }
@@ -508,6 +511,8 @@ var api = {
                     ]
                 },{
                     name: 'Account Name'
+                },{
+                    name: 'Account ID'
                 },{
                     name: 'Property Name'
                 },{
@@ -1014,7 +1019,7 @@ var api = {
                     regexValidation: /.*\S.*/
                 },{
                     name: 'Website URL',
-                    regexValidation: /.*\S.*/
+                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i 
                 }
             ];
             return createApiSheetColumnConfigArray(data);
@@ -1033,6 +1038,7 @@ var api = {
                             var defaults = [
                                 '',
                                 account.name,
+                                account.id,
                                 property.name,
                                 property.id,
                                 view.name,
@@ -1091,8 +1097,9 @@ var api = {
                     ]
                 },{
                     name: 'Account Name'
-                },
-                {
+                },{
+                    name: 'Account ID'
+                },{
                     name: 'Property Name'
                 },{
                     name: 'Property Id',
@@ -1123,6 +1130,7 @@ var api = {
                                 var defaults = [
                                     '',
                                     account.name,
+                                    account.id,
                                     property.name,
                                     property.id,
                                     view.name,
@@ -1173,6 +1181,8 @@ var api = {
                 },{
                     name: 'Account Name'
                 },{
+                    name: 'Account ID'
+                },{
                     name: 'Property Name'
                 },{
                     name: 'Property ID',
@@ -1203,20 +1213,49 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        getApiData: function(account, property, cb) {
+        listApiData: function(account, property, cb) {
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
             return cb.call(this, cdList);
+        },
+        getApiData: function(account, property, dimensionId, cb) {
+            var cdItem = Analytics.Management.CustomDimensions.get(account, property, dimensionId);
+            return cdItem;
+        },
+        insertApiData: function(data) {
+            var values = {
+                'name': data[5],
+                'index': data[6],
+                'scope': data[7],
+                'active': data[8]
+            };
+            var account = data[2];
+            var property = data[4];
+
+            return Analytics.Management.CustomDimensions.insert(values, account, property);
+        },
+        updateApiData: function(data) {
+            var values = {
+                'name': data[5],
+                'scope': data[7],
+                'active': data[8]
+            };
+            var account = data[2];
+            var property = data[4];
+            var customDimension = 'ga:dimension' + data[6];
+
+            return Analytics.Management.CustomDimensions.update(values, account, property, customDimension);
         },
         getData: function(cb) {
             var results = [];
 
             this.account.forEach(function(account) {
                 account.webProperties.forEach(function(property) {
-                    this.getApiData(account.id, property.id, function(cdList) {
+                    this.listApiData(account.id, property.id, function(cdList) {
                         cdList.forEach(function(cd) {
                             var defaults = [
                                 '',
                                 account.name,
+                                account.id,
                                 property.name,
                                 property.id,
                                 cd.name,
@@ -1234,27 +1273,48 @@ var api = {
 
             cb(results);
         },
-        /*
-         * Insert new data in Google Analytics via the API
-         * TODO: review function
-         */
-        insertApiData: function(account, property, data, cb) {
-            var cdInsert = Analytics.Management.CustomDimensions.insert();
-            return cb.call(this, cdInsert);
-        },
-        /*
-         * Update existing data in Google Analytics via the API
-         * TODO: review function
-         */
-        updateApiData: function(account, customDimension, property, data, cb) {
-            var cdUpdate = Analytics.Management.CustomDimensions.update();
-            return cb.call(this, cdUpdate);
-        },
-        /*
-         * TODO: finish function, differentiate between insert and update
-         */
-        insertData: function(cb) {
-            var results = this.data;
+        prepareInsertData: function(insertDataRange) {
+
+            // Split insertDataRange in data that needs to be inserted and data that needs to be updated
+            var insertData = [];
+            var updateData = [];
+
+            for (var i = 0; i < insertDataRange.length; i++) {
+                var account = insertDataRange[i][2];
+                var property = insertDataRange[i][4];
+                var customDimensionId = 'ga:dimension' + insertDataRange[i][6];
+
+                // TODO: implement better way to determine if a CD exists already or not
+                // A possibility could be to retrieve all CD's (list) for a given property
+                // but in that case this loop should be adjusted so that it groups all
+                // lines from the same property
+                try {
+                    var existingCD = this.getApiData(account, property, customDimensionId);
+                }
+                catch(e) {
+                    var existingCD = false;
+                }
+                if(existingCD && existingCD != false) {
+                    Logger.log('getApiData = true');
+                    updateData.push(insertDataRange[i]);
+                }
+                else if (existingCD == false) {
+                    Logger.log('getApiData = false');
+                    insertData.push(insertDataRange[i]);
+                }
+            }
+
+            if (insertData.length > 0){
+                for (var i = 0; i < insertData.length; i++) {
+                    this.insertApiData(insertData[i]);
+                }
+            }
+
+            if (updateData.length > 0){
+                for (var i = 0; i < updateData.length; i++) {
+                    this.updateApiData(updateData[i]);
+                }
+            }
         }
     },
     accountSummaries: {
@@ -1310,12 +1370,14 @@ function generateReport(accounts, apiType) {
 }
 // TODO: finalize & cleanup function
 // TODO: install change detection trigger programatically
-// TODO: update rowValues range based on the range provided in the event
 function onChangeValidation(event) {
     var activeSheet = event.source.getActiveSheet();
     var sheetName = activeSheet.getName();
-    var cell = activeSheet.getActiveCell();
-    var rowValues = activeSheet.getRange(cell.getRow(), 1, 1, activeSheet.getLastColumn()).getValues();
+    var activeRange = activeSheet.getActiveRange();
+    var numRows = activeRange.getNumRows();
+    var firstRow = activeRange.getLastRow() - numRows + 1;
+    var lastColumn = activeSheet.getLastColumn();
+    var rowValues = activeSheet.getRange(firstRow, 1, numRows, lastColumn).getValues();
     var callApi = api[getApiTypeBySheetName(sheetName)];
 
     callApi.init('getConfig', function() {
@@ -1330,25 +1392,27 @@ function onChangeValidation(event) {
  */
 function insertData() {
     var activeSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var sheetName = activeSheet.getName();
     var sheetRange = activeSheet.getDataRange();
     var sheetColumns = sheetRange.getNumColumns();
     var sheetRows = sheetRange.getNumRows();
     // Get the values of the sheet excluding the header row
     var sheetDataRange = activeSheet.getRange(2, 1, sheetRows, sheetColumns).getValues();
-    var insertDataRange = [];
+    var markedDataRange = [];
     var callApi = api[getApiTypeBySheetName(sheetName)];
 
     // Iterate over the rows in the sheetDataRange
     for (var r = 0; r < sheetDataRange.length; r++) {
         // Only process rows marked for inclusion
         if (sheetDataRange[r][0] == 'Yes') {
-            // Add rows to array insertDataRange
-            insertDataRange.push(sheetDataRange[r]);
+            // Add rows to array markedDataRange
+            markedDataRange.push(sheetDataRange[r]);
         }
     }
 
+    // TODO: verify if markedDataRange array <> empty
     callApi.init('insertData', function() {
-        callApi.insertData(insertDataRange);
+        callApi.prepareInsertData(markedDataRange);
     });
 }
 /**
