@@ -88,6 +88,27 @@ function sortArrayOfObjectsByParam(array, objectParamToSortBy, sortAscending) {
 }
 
 /**
+ * Sort a multidimensional array
+ *
+ * @param {array}   array       - Array or arrays
+ * @param {integer} sortIndex   - Array index to sort by
+ *
+ */
+function sortMultidimensionalArray(array, sortIndex) {
+    array.sort(sortFunction);
+
+    function sortFunction(array, b) {
+        if (array[sortIndex] === b[sortIndex]) {
+            return 0;
+        }
+        else {
+            return (array[sortIndex] < b[sortIndex]) ? -1 : 1;
+        }
+    }
+    return array;
+}
+
+/**
  * Display a message to the user
  *
  * @param {string} message
@@ -1309,6 +1330,8 @@ var api = {
             cb(results);
         },
         prepareInsertData: function(insertDataRange) {
+            // Sort array by Property
+            var insertDataRange = sortMultidimensionalArray(insertDataRange, 4);
 
             // Split insertDataRange in data that needs to be inserted and data that needs to be updated
             var insertData = [];
