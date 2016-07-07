@@ -1,6 +1,8 @@
 # Google-Analytics-Manager
 Tool to manage your Google Analytics accounts via a Google Sheet.
 
+At the moment this project is still in development mode.
+
 ## Development Backlog (Status)
 
 ### General
@@ -21,7 +23,7 @@ Tool to manage your Google Analytics accounts via a Google Sheet.
 - [ ] Insert / Update Filter Links
 - [x] List Custom Dimensions
 - [ ] Add dataValidation (regex) for the required Custom Dimensions columns
-- [ ] Insert / Update Custom Dimensions
+- [x] Insert / Update Custom Dimensions
 - [ ] List Custom Metrics
 - [ ] Add dataValidation (regex) for the required Custom Metrics columns
 - [ ] Insert / Update Custom Metrics
