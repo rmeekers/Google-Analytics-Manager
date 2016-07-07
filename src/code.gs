@@ -1331,22 +1331,17 @@ var api = {
             cb(results);
         },
         prepareInsertData: function(insertDataRange) {
-            // Sort array by Property
-            var insertDataRange = sortMultidimensionalArray(insertDataRange, 4);
 
             // Split insertDataRange in data that needs to be inserted and data that needs to be updated
             var insertData = [];
             var updateData = [];
 
             for (var i = 0; i < insertDataRange.length; i++) {
+
                 var account = insertDataRange[i][2];
                 var property = insertDataRange[i][4];
                 var customDimensionId = 'ga:dimension' + insertDataRange[i][6];
 
-                // TODO: implement better way to determine if a CD exists already or not
-                // A possibility could be to retrieve all CD's (list) for a given property
-                // but in that case this loop should be adjusted so that it groups all
-                // lines from the same property
                 try {
                     var existingCD = this.getApiData(account, property, customDimensionId);
                 }
@@ -1354,11 +1349,9 @@ var api = {
                     var existingCD = false;
                 }
                 if(existingCD && existingCD != false) {
-                    Logger.log('getApiData = true');
                     updateData.push(insertDataRange[i]);
                 }
                 else if (existingCD == false) {
-                    Logger.log('getApiData = false');
                     insertData.push(insertDataRange[i]);
                 }
             }
