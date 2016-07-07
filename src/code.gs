@@ -1269,9 +1269,10 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        listApiData: function(account, property, cb) {
-            var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
-            return cb.call(this, cdList);
+        listApiData: function(data) {
+            var account = data[2];
+            var property = data[4];
+            return = Analytics.Management.CustomDimensions.list(account, property).getItems();
         },
         getApiData: function(account, property, dimensionId, cb) {
             var cdItem = Analytics.Management.CustomDimensions.get(account, property, dimensionId);
