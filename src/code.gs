@@ -1269,38 +1269,64 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        listApiData: function(data) {
-            var account = data[2];
-            var property = data[4];
-            return = Analytics.Management.CustomDimensions.list(account, property).getItems();
-        },
-        getApiData: function(account, property, dimensionId, cb) {
-            var cdItem = Analytics.Management.CustomDimensions.get(account, property, dimensionId);
-            return cdItem;
-        },
-        insertApiData: function(data) {
-            var values = {
-                'name': data[5],
-                'index': data[6],
-                'scope': data[7],
-                'active': data[8]
-            };
-            var account = data[2];
-            var property = data[4];
+        //TODO: add try catch
+        listApiData: function(account, property, cb) {            
+            var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
 
-            return Analytics.Management.CustomDimensions.insert(values, account, property);
+            if (typeof cb === 'function') {
+                return cb.call(this, cdList);
+            }
+            else {
+                return cdList;
+            }
         },
-        updateApiData: function(data) {
-            var values = {
-                'name': data[5],
-                'scope': data[7],
-                'active': data[8]
-            };
-            var account = data[2];
-            var property = data[4];
-            var customDimension = 'ga:dimension' + data[6];
+        getApiData: function(account, property, index, cb) {
+            try {
+                var result = Analytics.Management.CustomDimensions.get(account, property, index);
+            }
+            catch (e) {
+                var result = false;
+            }
 
-            return Analytics.Management.CustomDimensions.update(values, account, property, customDimension);
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
+        //TODO: add try catch
+        insertApiData: function(account, property, name, index, scope, active, cb) {
+            var values = {
+                'name': name,
+                'index': index,
+                'scope': scope,
+                'active': active
+            };
+            var cdInsert = Analytics.Management.CustomDimensions.insert(values, account, property);
+
+            if (typeof cb === 'function') {
+                return cb.call(this, cdInsert);
+            }
+            else {
+                return cdInsert;
+            }            
+        },
+        //TODO: add try catch
+        updateApiData: function(account, property, name, index, scope, active, cb) {
+            var values = {
+                'name': name,
+                'scope': scope,
+                'active': active
+            };
+            var cdUpdate = Analytics.Management.CustomDimensions.update(values, account, property, index);
+
+            if (typeof cb === 'function') {
+                return cb.call(this, cdUpdate);
+            }
+            else {
+                return cdUpdate;
+            }
         },
         getData: function(cb) {
             var results = [];
@@ -1340,31 +1366,43 @@ var api = {
 
                 var account = insertDataRange[i][2];
                 var property = insertDataRange[i][4];
-                var customDimensionId = 'ga:dimension' + insertDataRange[i][6];
+                var index = 'ga:dimension' + insertDataRange[i][6];
 
-                try {
-                    var existingCD = this.getApiData(account, property, customDimensionId);
-                }
-                catch(e) {
-                    var existingCD = false;
-                }
-                if(existingCD && existingCD != false) {
+                var existingData = this.getApiData(account, property, index);
+
+                if(existingData && existingData != false) {
                     updateData.push(insertDataRange[i]);
                 }
-                else if (existingCD == false) {
+                else if (existingData == false) {
                     insertData.push(insertDataRange[i]);
                 }
             }
 
             if (insertData.length > 0){
                 for (var i = 0; i < insertData.length; i++) {
-                    this.insertApiData(insertData[i]);
+
+                    var account = insertData[i][2];
+                    var property = insertData[i][4];
+                    var name = insertData[i][5];
+                    var index = 'ga:dimension' + insertData[i][6];
+                    var scope = insertData[i][7];
+                    var active = insertData[i][8];
+
+                    this.insertApiData(account, property, name, index, scope, active);
                 }
             }
 
             if (updateData.length > 0){
                 for (var i = 0; i < updateData.length; i++) {
-                    this.updateApiData(updateData[i]);
+
+                    var account = updateData[i][2];
+                    var property = updateData[i][4];
+                    var name = updateData[i][5];
+                    var index = 'ga:dimension' + updateData[i][6];
+                    var scope = updateData[i][7];
+                    var active = updateData[i][8];
+                    
+                    this.updateApiData(account, property, name, index, scope, active);
                 }
             }
         }
