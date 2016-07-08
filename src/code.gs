@@ -118,6 +118,15 @@ function displayMessageToUser(message) {
 }
 
 /**
+ * Error handler
+ *
+ * @param {string} message
+ */
+ function errorHandler(e) {
+    displayMessageToUser(e);
+ }
+
+/**
  * onOpen function runs on application open
  * @param {*} e
  */
@@ -1285,7 +1294,7 @@ var api = {
                 var result = Analytics.Management.CustomDimensions.get(account, property, index);
             }
             catch (e) {
-                var result = false;
+                var result = e;
             }
 
             if (typeof cb === 'function') {
@@ -1295,7 +1304,6 @@ var api = {
                 return result;
             }
         },
-        //TODO: add try catch
         insertApiData: function(account, property, name, index, scope, active, cb) {
             var values = {
                 'name': name,
@@ -1303,29 +1311,38 @@ var api = {
                 'scope': scope,
                 'active': active
             };
-            var cdInsert = Analytics.Management.CustomDimensions.insert(values, account, property);
+            try {
+                var result = Analytics.Management.CustomDimensions.insert(values, account, property);
+            }
+            catch(e) {
+                var result = e;
+            }
 
             if (typeof cb === 'function') {
-                return cb.call(this, cdInsert);
+                return cb.call(this, result);
             }
             else {
-                return cdInsert;
+                return result;
             }            
         },
-        //TODO: add try catch
         updateApiData: function(account, property, name, index, scope, active, cb) {
             var values = {
                 'name': name,
                 'scope': scope,
                 'active': active
             };
-            var cdUpdate = Analytics.Management.CustomDimensions.update(values, account, property, index);
+            try {
+                var result = Analytics.Management.CustomDimensions.update(values, account, property, index);
+            }
+            catch (e) {
+                var result = e;
+            }
 
             if (typeof cb === 'function') {
-                return cb.call(this, cdUpdate);
+                return cb.call(this, result);
             }
             else {
-                return cdUpdate;
+                return result;
             }
         },
         getData: function(cb) {
@@ -1355,6 +1372,66 @@ var api = {
             }, this);
 
             cb(results);
+        },
+        // WIP finish function. Add insert method
+        insertData: function(insertDataRange) {
+
+            var results = [];
+
+            // Split insertDataRange in data that needs to be inserted and data that needs to be updated
+            var insertData = [];
+            var updateData = [];
+
+            for (var i = 0; i < insertDataRange.length; i++) {
+
+                var account = insertDataRange[i][2];
+                var property = insertDataRange[i][4];
+                var index = 'ga:dimension' + insertDataRange[i][6];
+
+                var existingData = this.getApiData(account, property, index);
+
+                if(existingData && existingData != false) {
+                    updateData.push(insertDataRange[i]);
+                }
+                else if (existingData == false) {
+                    insertData.push(insertDataRange[i]);
+                }
+            }
+
+            // If insertData array is not empty, insert that data
+            if (insertData.length > 0){
+
+                insertData.forEach(function(cd){
+
+                    var account = cd[2];
+                    var property = cd[4];
+                    var name = cd[5];
+                    var index = 'ga:dimension' + cd[6];
+                    var scope = cd[7];
+                    var active = cd[8];
+
+                    var result = this.insertApiData(account, property, name, index, scope, active);
+                    results.push(result);
+                });
+            }
+
+            // If updateData is not empty, update that data
+            if (updateData.length > 0){
+
+                updateData.forEach(function(cd){
+
+                    var account = cd[2];
+                    var property = cd[4];
+                    var name = cd[5];
+                    var index = 'ga:dimension' + cd[6];
+                    var scope = cd[7];
+                    var active = cd[8];
+                    
+                    var result = this.updateApiData(account, property, name, index, scope, active);
+                    results.push(result);
+                });
+            }
+            Logger.log('insertData results: ' + results);
         },
         prepareInsertData: function(insertDataRange) {
 
@@ -1503,7 +1580,7 @@ function insertData() {
     if (markedDataRange.length > 0) {
         // TODO: Add try catch + feedback to the user
         callApi.init('insertData', function() {
-            callApi.prepareInsertData(markedDataRange);
+            callApi.insertData(markedDataRange);
         });
     }
     else {
