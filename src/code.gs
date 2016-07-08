@@ -29,6 +29,11 @@ var colors = {
  */
 
 /**
+ * Define the spreadsheet UI
+ */
+var ui = SpreadsheetApp.getUi();
+
+/**
  * Return the sheet settings
  * @param {array} array
  * @returns {array}
@@ -109,22 +114,14 @@ function sortMultidimensionalArray(array, sortIndex) {
 }
 
 /**
- * Display a message to the user
+ * Test if a given parameter is an object
  *
- * @param {string} message
+ * @param obj - Object to test
+ * @return boolean
  */
-function displayMessageToUser(message) {
-    SpreadsheetApp.getUi().alert(message);
+function isObject(obj) {
+  return obj === Object(obj);
 }
-
-/**
- * Error handler
- *
- * @param {string} message
- */
- function errorHandler(e) {
-    displayMessageToUser(e);
- }
 
 /**
  * onOpen function runs on application open
@@ -147,7 +144,6 @@ function onOpen(e) {
  * Helper function to create a new Properties sheet from the menu
  */
 function createSheetProperties() {
-    var ui = SpreadsheetApp.getUi();
 
     var result = ui.alert(
         'Pay attention',
@@ -164,7 +160,6 @@ function createSheetProperties() {
  * Helper function to create a new Views sheet from the menu
  */
 function createSheetViews() {
-    var ui = SpreadsheetApp.getUi();
 
     var result = ui.alert(
         'Pay attention',
@@ -1313,6 +1308,9 @@ var api = {
             };
             try {
                 var result = Analytics.Management.CustomDimensions.insert(values, account, property);
+                if (isObject(result)) {
+                    var result = 'Success: ' + index + ' from ' + property + ' has been inserted.';
+                }
             }
             catch(e) {
                 var result = e;
@@ -1333,6 +1331,9 @@ var api = {
             };
             try {
                 var result = Analytics.Management.CustomDimensions.update(values, account, property, index);
+                if (isObject(result)) {
+                    var result = 'Success: ' + index + ' from ' + property + ' has been updated.';
+                }
             }
             catch (e) {
                 var result = e;
@@ -1373,116 +1374,27 @@ var api = {
 
             cb(results);
         },
-        // WIP finish function. Add insert method
-        insertData: function(insertDataRange) {
+        insertData: function(insertData) {            
 
-            var results = [];
+            var account = insertData[2];
+            var property = insertData[4];
+            var name = insertData[5];
+            var index = 'ga:dimension' + insertData[6];
+            var scope = insertData[7];
+            var active = insertData[8];
 
-            // Split insertDataRange in data that needs to be inserted and data that needs to be updated
-            var insertData = [];
-            var updateData = [];
+            var existingData = this.getApiData(account, property, index);
 
-            for (var i = 0; i < insertDataRange.length; i++) {
-
-                var account = insertDataRange[i][2];
-                var property = insertDataRange[i][4];
-                var index = 'ga:dimension' + insertDataRange[i][6];
-
-                var existingData = this.getApiData(account, property, index);
-
-                if(existingData && existingData != false) {
-                    updateData.push(insertDataRange[i]);
-                }
-                else if (existingData == false) {
-                    insertData.push(insertDataRange[i]);
-                }
+            if(existingData && existingData != false) {                    
+                var result = this.updateApiData(account, property, name, index, scope, active);
+                return result;
+            }
+            else {
+                var result = this.insertApiData(account, property, name, index, scope, active);
+                return result;
             }
 
-            // If insertData array is not empty, insert that data
-            if (insertData.length > 0){
-
-                insertData.forEach(function(cd){
-
-                    var account = cd[2];
-                    var property = cd[4];
-                    var name = cd[5];
-                    var index = 'ga:dimension' + cd[6];
-                    var scope = cd[7];
-                    var active = cd[8];
-
-                    var result = this.insertApiData(account, property, name, index, scope, active);
-                    results.push(result);
-                });
-            }
-
-            // If updateData is not empty, update that data
-            if (updateData.length > 0){
-
-                updateData.forEach(function(cd){
-
-                    var account = cd[2];
-                    var property = cd[4];
-                    var name = cd[5];
-                    var index = 'ga:dimension' + cd[6];
-                    var scope = cd[7];
-                    var active = cd[8];
-                    
-                    var result = this.updateApiData(account, property, name, index, scope, active);
-                    results.push(result);
-                });
-            }
-            Logger.log('insertData results: ' + results);
         },
-        prepareInsertData: function(insertDataRange) {
-
-            // Split insertDataRange in data that needs to be inserted and data that needs to be updated
-            var insertData = [];
-            var updateData = [];
-
-            for (var i = 0; i < insertDataRange.length; i++) {
-
-                var account = insertDataRange[i][2];
-                var property = insertDataRange[i][4];
-                var index = 'ga:dimension' + insertDataRange[i][6];
-
-                var existingData = this.getApiData(account, property, index);
-
-                if(existingData && existingData != false) {
-                    updateData.push(insertDataRange[i]);
-                }
-                else if (existingData == false) {
-                    insertData.push(insertDataRange[i]);
-                }
-            }
-
-            if (insertData.length > 0){
-                for (var i = 0; i < insertData.length; i++) {
-
-                    var account = insertData[i][2];
-                    var property = insertData[i][4];
-                    var name = insertData[i][5];
-                    var index = 'ga:dimension' + insertData[i][6];
-                    var scope = insertData[i][7];
-                    var active = insertData[i][8];
-
-                    this.insertApiData(account, property, name, index, scope, active);
-                }
-            }
-
-            if (updateData.length > 0){
-                for (var i = 0; i < updateData.length; i++) {
-
-                    var account = updateData[i][2];
-                    var property = updateData[i][4];
-                    var name = updateData[i][5];
-                    var index = 'ga:dimension' + updateData[i][6];
-                    var scope = updateData[i][7];
-                    var active = updateData[i][8];
-                    
-                    this.updateApiData(account, property, name, index, scope, active);
-                }
-            }
-        }
     },
     accountSummaries: {
         name: 'Account Summaries',
@@ -1556,8 +1468,11 @@ function onChangeValidation(event) {
 
 /**
  * Insert / update data marked for inclusion from the active sheet to Google Analytics
+ *
+ * @return Displays a message to the user
  */
 function insertData() {
+    var results = [];
     var activeSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var sheetName = activeSheet.getName();
     var sheetRange = activeSheet.getDataRange();
@@ -1570,22 +1485,28 @@ function insertData() {
 
     // Iterate over the rows in the sheetDataRange
     for (var r = 0; r < sheetDataRange.length; r++) {
+
+        // Define the real row ID in order to provide feedback to the user
+        var realRowId = r+2;
+
         // Only process rows marked for inclusion
         if (sheetDataRange[r][0] == 'Yes') {
-            // Add rows to array markedDataRange
-            markedDataRange.push(sheetDataRange[r]);
+
+            callApi.init('insertData', function() {
+                var result = callApi.insertData(sheetDataRange[r]);
+                results.push('\nRow ' + realRowId + ': ' + result);
+            });
+
         }
     }
 
-    if (markedDataRange.length > 0) {
-        // TODO: Add try catch + feedback to the user
-        callApi.init('insertData', function() {
-            callApi.insertData(markedDataRange);
-        });
+    if (results.length > 0) {
+        ui.alert('Results', results, ui.ButtonSet.OK);
     }
     else {
-        displayMessageToUser('Please mark at least on row for inclusion.');
+        ui.alert('Error', 'Please mark at least on row for inclusion.', ui.ButtonSet.OK);
     }
+
 }
 /**
  * Retrieve Account Summary from the Google Analytics Management API
