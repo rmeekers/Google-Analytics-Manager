@@ -70,13 +70,13 @@ function replaceUndefinedInArray(array, value) {
  * Sorts an array of objects
  *
  *  @param {array}      array               - Array of objects
- *  @param {string}     objectParamToSortBy - Name of object parameter to sort by 
+ *  @param {string}     objectParamToSortBy - Name of object parameter to sort by
  *  @param {boolean}    sortAscending       - (optional) Sort ascending (default) or decending
 */
 function sortArrayOfObjectsByParam(array, objectParamToSortBy, sortAscending) {
 
     // default to true
-    if(sortAscending == undefined || sortAscending != false) {
+    if(sortAscending === undefined || sortAscending !== false) {
         sortAscending = true;
     }
 
@@ -290,10 +290,10 @@ var sheet = {
                     else {
                       Logger.log('Validate NOK: ' + string);
                     }
-                } 
+                }
             }
         }
-    },  
+    },
 
     /*
      * Define the number of columns needed in the sheet and add or remove columns
@@ -504,7 +504,7 @@ var api = {
                     ]
                 },{
                     name: 'Website URL',
-                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i 
+                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
                 }
             ];
             return createApiSheetColumnConfigArray(data);
@@ -1079,7 +1079,7 @@ var api = {
                     regexValidation: /.*\S.*/
                 },{
                     name: 'Website URL',
-                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i 
+                    regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
                 }
             ];
             return createApiSheetColumnConfigArray(data);
@@ -1274,7 +1274,7 @@ var api = {
             return createApiSheetColumnConfigArray(data);
         },
         //TODO: add try catch
-        listApiData: function(account, property, cb) {            
+        listApiData: function(account, property, cb) {
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
 
             if (typeof cb === 'function') {
@@ -1285,11 +1285,13 @@ var api = {
             }
         },
         getApiData: function(account, property, index, cb) {
+            var result;
+
             try {
-                var result = Analytics.Management.CustomDimensions.get(account, property, index);
+                result = Analytics.Management.CustomDimensions.get(account, property, index);
             }
             catch (e) {
-                var result = e;
+                result = e;
             }
 
             if (typeof cb === 'function') {
@@ -1306,14 +1308,16 @@ var api = {
                 'scope': scope,
                 'active': active
             };
+            var result;
+
             try {
-                var result = Analytics.Management.CustomDimensions.insert(values, account, property);
+                result = Analytics.Management.CustomDimensions.insert(values, account, property);
                 if (isObject(result)) {
-                    var result = 'Success: ' + index + ' from ' + property + ' has been inserted.';
+                    result = 'Success: ' + index + ' from ' + property + ' has been inserted.';
                 }
             }
             catch(e) {
-                var result = e;
+                result = e;
             }
 
             if (typeof cb === 'function') {
@@ -1321,7 +1325,7 @@ var api = {
             }
             else {
                 return result;
-            }            
+            }
         },
         updateApiData: function(account, property, name, index, scope, active, cb) {
             var values = {
@@ -1329,14 +1333,15 @@ var api = {
                 'scope': scope,
                 'active': active
             };
+            var result;
             try {
-                var result = Analytics.Management.CustomDimensions.update(values, account, property, index);
+                result = Analytics.Management.CustomDimensions.update(values, account, property, index);
                 if (isObject(result)) {
-                    var result = 'Success: ' + index + ' from ' + property + ' has been updated.';
+                    result = 'Success: ' + index + ' from ' + property + ' has been updated';
                 }
             }
             catch (e) {
-                var result = e;
+                result = e;
             }
 
             if (typeof cb === 'function') {
@@ -1374,7 +1379,7 @@ var api = {
 
             cb(results);
         },
-        insertData: function(insertData) {            
+        insertData: function(insertData) {
 
             var account = insertData[2];
             var property = insertData[4];
@@ -1382,15 +1387,15 @@ var api = {
             var index = 'ga:dimension' + insertData[6];
             var scope = insertData[7];
             var active = insertData[8];
-
             var existingData = this.getApiData(account, property, index);
+            var result;
 
-            if(existingData && existingData != false) {                    
-                var result = this.updateApiData(account, property, name, index, scope, active);
+            if(existingData && existingData !== false) {
+                result = this.updateApiData(account, property, name, index, scope, active);
                 return result;
             }
             else {
-                var result = this.insertApiData(account, property, name, index, scope, active);
+                result = this.insertApiData(account, property, name, index, scope, active);
                 return result;
             }
 
@@ -1482,23 +1487,23 @@ function insertData() {
     var sheetDataRange = activeSheet.getRange(2, 1, sheetRows, sheetColumns).getValues();
     var markedDataRange = [];
     var callApi = api[getApiTypeBySheetName(sheetName)];
+    var result;
 
     // Iterate over the rows in the sheetDataRange
-    for (var r = 0; r < sheetDataRange.length; r++) {
-
+    sheetDataRange.forEach(function(rowArray, rowId) {
         // Define the real row ID in order to provide feedback to the user
-        var realRowId = r+2;
+        var realRowId = rowId+2;
 
         // Only process rows marked for inclusion
-        if (sheetDataRange[r][0] == 'Yes') {
+        if (rowArray[0] == 'Yes') {
 
             callApi.init('insertData', function() {
-                var result = callApi.insertData(sheetDataRange[r]);
+                result = callApi.insertData(rowArray);
                 results.push('\nRow ' + realRowId + ': ' + result);
             });
 
         }
-    }
+    });
 
     if (results.length > 0) {
         ui.alert('Results', results, ui.ButtonSet.OK);
