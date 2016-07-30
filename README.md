@@ -17,7 +17,7 @@ At the moment this project is still in development mode.
 - [ ] Insert / Update Properties
 - [x] List Views
 - [ ] Add dataValidation (regex) for the required Views columns
-- [ ] Insert / Update Views
+- [x] Insert / Update Views
 - [x] List Filter Links
 - [ ] Add dataValidation (regex) for the required Filter Links columns
 - [ ] Insert / Update Filter Links
@@ -31,7 +31,7 @@ At the moment this project is still in development mode.
 - [ ] Insert / Update Goals
 - [ ] Differentiate between GA Standard and GA Premium and adapt datavalidation to it
 
-### Bugs
+### Bugs / Todo
 - [ ] Make sure onChange validation keeps working when a column gets deleted
 - [ ] Before running datavalidation, verify the columns / sheet structure
 - [x] Verify positions of dataRange.clearContent()

@@ -1112,6 +1112,124 @@ var api = {
                 return viewsList;
             }
         },
+        getApiData: function(account, property, id, cb) {
+            var result;
+
+            try {
+                result = Analytics.Management.Profiles.get(account, property, id);
+            }
+            catch (e) {
+                result = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
+        insertApiData: function(
+            accountId,
+            propertyId,
+            name,
+            botFilteringEnabled,
+            currency,
+            eCommerceTracking,
+            excludeQueryParameters,
+            siteSearchCategoryParameters,
+            siteSearchQueryParameters,
+            stripSiteSearchCategoryParameters,
+            stripSiteSearchQueryParameters,
+            timezone,
+            type,
+            websiteUrl,
+            cb
+        ) {
+            //TODO: write profileId to sheet.
+            //      Probably by extending the result object with an action (write to sheet) next to the message so we can catch this action in the insertData function.
+            var values = {};
+            if (name) {values.name = name;}
+            if (botFilteringEnabled) {values.botFilteringEnabled = botFilteringEnabled;}
+            if (currency) {values.currency = currency;}
+            if (eCommerceTracking) {values.eCommerceTracking = eCommerceTracking;}
+            if (excludeQueryParameters) {values.excludeQueryParameters = excludeQueryParameters;}
+            if (siteSearchCategoryParameters) {values.siteSearchCategoryParameters = siteSearchCategoryParameters;}
+            if (siteSearchQueryParameters) {values.siteSearchQueryParameters = siteSearchQueryParameters;}
+            if (stripSiteSearchCategoryParameters) {values.stripSiteSearchCategoryParameters = stripSiteSearchCategoryParameters;}
+            if (stripSiteSearchQueryParameters) {values.stripSiteSearchQueryParameters = stripSiteSearchQueryParameters;}
+            if (timezone) {values.timezone = timezone;}
+            if (type) {values.type = type;}
+            if (websiteUrl) {values.websiteUrl = websiteUrl;}
+            var result;
+
+            try {
+                result = Analytics.Management.Profiles.insert(values, accountId, propertyId);
+                if (isObject(result)) {
+                    result = 'Success: ' + name + ' (' + result.id + ') from ' + propertyId + ' has been inserted';
+                }
+            }
+            catch(e) {
+                result = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
+        updateApiData: function(
+            accountId,
+            propertyId,
+            name,
+            viewId,
+            botFilteringEnabled,
+            currency,
+            eCommerceTracking,
+            excludeQueryParameters,
+            siteSearchCategoryParameters,
+            siteSearchQueryParameters,
+            stripSiteSearchCategoryParameters,
+            stripSiteSearchQueryParameters,
+            timezone,
+            type,
+            websiteUrl,
+            cb
+        ) {
+            var values = {};
+            if (name) {values.name = name;}
+            if (botFilteringEnabled) {values.botFilteringEnabled = botFilteringEnabled;}
+            if (currency) {values.currency = currency;}
+            if (eCommerceTracking) {values.eCommerceTracking = eCommerceTracking;}
+            if (excludeQueryParameters) {values.excludeQueryParameters = excludeQueryParameters;}
+            if (siteSearchCategoryParameters) {values.siteSearchCategoryParameters = siteSearchCategoryParameters;}
+            if (siteSearchQueryParameters) {values.siteSearchQueryParameters = siteSearchQueryParameters;}
+            if (stripSiteSearchCategoryParameters) {values.stripSiteSearchCategoryParameters = stripSiteSearchCategoryParameters;}
+            if (stripSiteSearchQueryParameters) {values.stripSiteSearchQueryParameters = stripSiteSearchQueryParameters;}
+            if (timezone) {values.timezone = timezone;}
+            if (type) {values.type = type;}
+            if (websiteUrl) {values.websiteUrl = websiteUrl;}
+
+            var result;
+            try {
+                result = Analytics.Management.Profiles.update(values, accountId, propertyId, viewId);
+                if (isObject(result)) {
+                    result = 'Success: ' + name + ' (' + viewId + ') from ' + propertyId + ' has been updated';
+                }
+            }
+            catch (e) {
+                result = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
         getData: function(cb) {
             var results = [];
 
@@ -1148,7 +1266,68 @@ var api = {
             }, this);
 
             cb(results);
-        }
+        },
+        insertData: function(insertData) {
+
+            var accountId = insertData[2];
+            var propertyId = insertData[4];
+            var name = insertData[5];
+            var viewId = insertData[6];
+            var botFilteringEnabled = insertData[7];
+            var currency = insertData[8];
+            var eCommerceTracking = insertData[9];
+            var excludeQueryParameters = insertData[10];
+            var siteSearchCategoryParameters = insertData[11];
+            var siteSearchQueryParameters = insertData[12];
+            var stripSiteSearchCategoryParameters = insertData[13];
+            var stripSiteSearchQueryParameters = insertData[14];
+            var timezone = insertData[15];
+            var type = insertData[16];
+            var websiteUrl = insertData[17];
+            var existingViewId = this.getApiData(accountId, propertyId, viewId).id;
+            var result;
+
+            if(!viewId && viewId == existingViewId) {
+                result = this.updateApiData(
+                    accountId,
+                    propertyId,
+                    name,
+                    viewId,
+                    botFilteringEnabled,
+                    currency,
+                    eCommerceTracking,
+                    excludeQueryParameters,
+                    siteSearchCategoryParameters,
+                    siteSearchQueryParameters,
+                    stripSiteSearchCategoryParameters,
+                    stripSiteSearchQueryParameters,
+                    timezone,
+                    type,
+                    websiteUrl
+                );
+                return result;
+            }
+            else {
+                result = this.insertApiData(
+                    accountId,
+                    propertyId,
+                    name,
+                    botFilteringEnabled,
+                    currency,
+                    eCommerceTracking,
+                    excludeQueryParameters,
+                    siteSearchCategoryParameters,
+                    siteSearchQueryParameters,
+                    stripSiteSearchCategoryParameters,
+                    stripSiteSearchQueryParameters,
+                    timezone,
+                    type,
+                    websiteUrl
+                );
+                return result;
+            }
+
+        },
     },
     filterLinks: {
         name: 'Filter Links',
@@ -1476,9 +1655,9 @@ function generateReport(accounts, apiType) {
         });
     }, {'accounts': accounts});
 }
-// TODO: finalize & cleanup function
-// TODO: install change detection trigger programatically
 function onChangeValidation(event) {
+    // TODO: finalize & cleanup function
+    // TODO: install change detection trigger programatically
     var activeSheet = event.source.getActiveSheet();
     var sheetName = activeSheet.getName();
     var activeRange = activeSheet.getActiveRange();
