@@ -277,22 +277,32 @@ var sheet = {
         return this;
     },
     // TODO: do something usefull after validation
+    // FIXME: return correct row number
     validate: function() {
-        for (var row = 0; row < this.data.length; row++) {
-            var regex = this.regexValidation[row];
+        var results = [];
+
+        for (var column = 0; column < this.data.length; column++) {
+            var regex = this.regexValidation[column];
             // Only validate a cell if there is a regexValidation defined
             if (regex) {
-                for (var column = 0; column < this.data[row].length; column++) {
-                    var string = String(this.data[row][column]);
+                for (var row = 0; row < this.data[column].length; row++) {
+                    var string = String(this.data[column][row]);
                     if (string.match(regex)) {
                       Logger.log('Validate OK: ' + string);
                     }
                     else {
                       Logger.log('Validate NOK: ' + string);
+                      results.push('\nError: data validation failed for value ' + string + 'on row ' + row + ' column ' + column);
                     }
                 }
             }
         }
+
+        /*
+        if (results.length > 0) {
+            ui.alert('Results', results, ui.ButtonSet.OK);
+        }
+        */
     },
 
     /*
