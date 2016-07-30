@@ -519,15 +519,22 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        requestData: function(account, cb) {
+        listApiData: function(account, cb) {
+            //TODO: add try catch
             var propertiesList = Analytics.Management.Webproperties.list(account).getItems();
-            return cb.call(this, propertiesList);
+
+            if (typeof cb === 'function') {
+                return cb.call(this, propertiesList);
+            }
+            else {
+                return propertiesList;
+            }
         },
         getData: function(cb) {
             var results = [];
 
             this.account.forEach(function(account) {
-                this.requestData(account.id, function(propertiesList) {
+                this.listApiData(account.id, function(propertiesList) {
                     propertiesList.forEach(function(property) {
                         var defaults = [
                             '',
