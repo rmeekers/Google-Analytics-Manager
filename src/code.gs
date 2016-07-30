@@ -1101,16 +1101,23 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        requestData: function(account, property, cb) {
+        listApiData: function(account, property, cb) {
+            //TODO: add try catch
             var viewsList = Analytics.Management.Profiles.list(account, property).getItems();
-            return cb.call(this, viewsList);
+
+            if (typeof cb === 'function') {
+                return cb.call(this, viewsList);
+            }
+            else {
+                return viewsList;
+            }
         },
         getData: function(cb) {
             var results = [];
 
             this.account.forEach(function(account) {
                 account.webProperties.forEach(function(property) {
-                    this.requestData(account.id, property.id, function(viewsList) {
+                    this.listApiData(account.id, property.id, function(viewsList) {
                         viewsList.forEach(function(view) {
                             var defaults = [
                                 '',
