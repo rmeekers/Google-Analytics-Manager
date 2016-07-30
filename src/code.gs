@@ -1297,8 +1297,8 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        //TODO: add try catch
         listApiData: function(account, property, cb) {
+            //TODO: add try catch
             var cdList = Analytics.Management.CustomDimensions.list(account, property).getItems();
 
             if (typeof cb === 'function') {
