@@ -41,6 +41,7 @@ var ui = SpreadsheetApp.getUi();
 function createApiSheetColumnConfigArray(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
+        namesInApi: [array.map(function(element) { return element.nameInApi; })],
         colors: [array.map(function(element) { return element.color || colors.primary; })],
         dataValidation: array.map(function(element) {
             if (element.dataValidation) {
@@ -194,6 +195,17 @@ function getApiTypeBySheetName(sheetName) {
             return type;
         }
     }
+}
+
+/**
+ * Helper function to retrieve the columnIndex based on the column apiName
+ * @param {string} apiType
+ * @param {string} nameInApi
+ * @return {integer}
+ */
+function getApiColumnIndexByName(apiType, nameInApi) {
+    var columns = api[apiType].sheetColumnConfig().namesInApi;
+    return columns[0].indexOf(nameInApi) + 1;
 }
 
 /**
@@ -458,22 +470,28 @@ var api = {
             var data = [
                 {
                     name: 'Include',
+                    nameInApi: 'include',
                     dataValidation: [
                         'Yes',
                         'No'
                     ]
                 },{
-                    name: 'Account Name'
+                    name: 'Account Name',
+                    nameInApi: 'accountName',
                 },{
-                    name: 'Account ID'
+                    name: 'Account ID',
+                    nameInApi: 'accountId',
                 },{
                     name: 'Name',
+                    nameInApi: 'name',
                     regexValidation: /.*\S.*/
                 },{
                     name: 'ID',
+                    nameInApi: 'id',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Industry',
+                    nameInApi: 'industryVertical',
                     dataValidation: [
                         'UNSPECIFIED',
                         'ARTS_AND_ENTERTAINMENT',
@@ -505,15 +523,18 @@ var api = {
                     ],
                     regexValidation: /.*\S.*/
                 },{
-                    name: 'Default View ID'
+                    name: 'Default View ID',
+                    nameInApi: 'defaultProfileId',
                 },{
                     name: 'Starred',
+                    nameInApi: 'starred',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
                     ]
                 },{
                     name: 'Website URL',
+                    nameInApi: 'websiteUrl',
                     regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
                 }
             ];
@@ -582,31 +603,40 @@ var api = {
             var data = [
                 {
                     name: 'Include',
+                    nameInApi: 'include',
                     dataValidation: [
                         'Yes',
                         'No'
                     ]
                 },{
-                    name: 'Account Name'
+                    name: 'Account Name',
+                    nameInApi: 'accountName',
                 },{
-                    name: 'Account ID'
+                    name: 'Account ID',
+                    nameInApi: 'accountId',
                 },{
-                    name: 'Property Name'
+                    name: 'Property Name',
+                    nameInApi: 'propertyName',
                 },{
                     name: 'Property ID',
+                    nameInApi: 'webPropertyId',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
-                    name: 'Name'
+                    name: 'Name',
+                    nameInApi: 'name',
                 },{
-                    name: 'ID'
+                    name: 'ID',
+                    nameInApi: 'id',
                 },{
                     name: 'Bot Filtering Enabled',
+                    nameInApi: 'botFilteringEnabled',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
                     ]
                 },{
                     name: 'Currency',
+                    nameInApi: 'currency',
                     dataValidation: [
                         'ARS',
                         'AUD',
@@ -643,30 +673,37 @@ var api = {
                     regexValidation: /.*\S.*/
                 },{
                     name: 'eCommerce Tracking',
+                    nameInApi: 'eCommerceTracking',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
                     ]
                 },{
-                    name: 'Exclude Query Params'
+                    name: 'Exclude Query Params',
+                    nameInApi: 'excludeQueryParameters',
                 },{
-                    name: 'Site Search Category Params'
+                    name: 'Site Search Category Params',
+                    nameInApi: 'siteSearchCategoryParameters',
                 },{
-                    name: 'Site Search Query Params'
+                    name: 'Site Search Query Params',
+                    nameInApi: 'siteSearchQueryParameters',
                 },{
                     name: 'Strip Site Search Category Params',
+                    nameInApi: 'stripSiteSearchCategoryParameters',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
                     ]
                 },{
                     name: 'Strip Site Search Query Params',
+                    nameInApi: 'stripSiteSearchQueryParameters',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
                     ]
                 },{
                     name: 'Timezone',
+                    nameInApi: 'timezone',
                     dataValidation: [
                         'Africa/Abidjan',
                         'Africa/Accra',
@@ -1089,6 +1126,7 @@ var api = {
                     regexValidation: /.*\S.*/
                 },{
                     name: 'Type',
+                    nameInApi: 'type',
                     dataValidation: [
                         'WEB',
                         'APP'
@@ -1096,6 +1134,7 @@ var api = {
                     regexValidation: /.*\S.*/
                 },{
                     name: 'Website URL',
+                    nameInApi: 'websiteUrl',
                     regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
                 }
             ];
@@ -1350,25 +1389,35 @@ var api = {
             var data = [
                 {
                     name: 'Include',
+                    nameInApi: 'include',
                     dataValidation: [
                         'Yes',
                         'No'
                     ]
                 },{
-                    name: 'Account Name'
+                    name: 'Account Name',
+                    nameInApi: 'accountName',
                 },{
-                    name: 'Account ID'
+                    name: 'Account ID',
+                    nameInApi: 'profileRefAccountId',
                 },{
-                    name: 'Property Name'
+                    name: 'Property Name',
+                    nameInApi: 'profileRefWebPropertyName',
                 },{
                     name: 'Property Id',
+                    nameInApi: 'profileRefWebPropertyId',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
-                    name: 'View Name'
+                    name: 'View Name',
+                    nameInApi: 'profileRefName',
                 },{
-                    name: 'Name'
+                    name: 'Name',
+                    // TODO: verify if this is correct
+                    nameInApi: 'filterRefName',
                 },{
                     name: 'ID',
+                    // TODO: verify if this is correct
+                    nameInApi: 'id',
                     regexValidation: /^[0-9]+$/
                 }
             ];
@@ -1433,27 +1482,35 @@ var api = {
             var data = [
                 {
                     name: 'Include',
+                    nameInApi: 'include',
                     dataValidation: [
                         'Yes',
                         'No'
                     ]
                 },{
-                    name: 'Account Name'
+                    name: 'Account Name',
+                    nameInApi: 'accountName',
                 },{
-                    name: 'Account ID'
+                    name: 'Account ID',
+                    nameInApi: 'accountId',
                 },{
-                    name: 'Property Name'
+                    name: 'Property Name',
+                    nameInApi: 'webPropertyName',
                 },{
                     name: 'Property ID',
+                    nameInApi: 'webPropertyId',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Name',
+                    nameInApi: 'name',
                     regexValidation: /.*\S.*/
                 },{
                     name: 'Index',
+                    nameInApi: 'index',
                     regexValidation: /^[0-9]{1,3}$/
                 },{
                     name: 'Scope',
+                    nameInApi: 'scope',
                     dataValidation: [
                         'HIT',
                         'SESSION',
@@ -1462,7 +1519,8 @@ var api = {
                     ],
                     regexValidation: /.*\S.*/
                 },{
-                    name: 'Active',
+                    name: 'active',
+                    nameInApi: 'include',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
