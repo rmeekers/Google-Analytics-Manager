@@ -1285,10 +1285,27 @@ var api = {
             var type = insertData[16];
             var websiteUrl = insertData[17];
             var existingViewId = this.getApiData(accountId, propertyId, viewId).id;
-            var result;
 
-            if(!viewId && viewId == existingViewId) {
-                result = this.updateApiData(
+            if(!viewId || viewId != existingViewId) {
+                return this.insertApiData(
+                    accountId,
+                    propertyId,
+                    name,
+                    botFilteringEnabled,
+                    currency,
+                    eCommerceTracking,
+                    excludeQueryParameters,
+                    siteSearchCategoryParameters,
+                    siteSearchQueryParameters,
+                    stripSiteSearchCategoryParameters,
+                    stripSiteSearchQueryParameters,
+                    timezone,
+                    type,
+                    websiteUrl
+                );
+            }
+            else if(viewId == existingViewId) {
+                return this.updateApiData(
                     accountId,
                     propertyId,
                     name,
@@ -1305,28 +1322,7 @@ var api = {
                     type,
                     websiteUrl
                 );
-                return result;
             }
-            else {
-                result = this.insertApiData(
-                    accountId,
-                    propertyId,
-                    name,
-                    botFilteringEnabled,
-                    currency,
-                    eCommerceTracking,
-                    excludeQueryParameters,
-                    siteSearchCategoryParameters,
-                    siteSearchQueryParameters,
-                    stripSiteSearchCategoryParameters,
-                    stripSiteSearchQueryParameters,
-                    timezone,
-                    type,
-                    websiteUrl
-                );
-                return result;
-            }
-
         },
     },
     filterLinks: {
