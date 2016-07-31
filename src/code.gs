@@ -1161,16 +1161,16 @@ var api = {
             if (timezone) {values.timezone = timezone;}
             if (type) {values.type = type;}
             if (websiteUrl) {values.websiteUrl = websiteUrl;}
-            var result;
+            var result = {};
 
             try {
-                result = Analytics.Management.Profiles.insert(values, accountId, propertyId);
+                result.call = Analytics.Management.Profiles.insert(values, accountId, propertyId);
                 if (isObject(result)) {
-                    result = 'Success: ' + name + ' (' + result.id + ') from ' + propertyId + ' has been inserted';
+                    result.message = 'Success: ' + name + ' (' + result.call.id + ') from ' + propertyId + ' has been inserted';
                 }
             }
             catch(e) {
-                result = e;
+                result.message = e;
             }
 
             if (typeof cb === 'function') {
@@ -1680,7 +1680,7 @@ function onChangeValidation(event) {
  * @return Displays a message to the user
  */
 function insertData() {
-    var results = [];
+    var resultMessages = [];
     var activeSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var sheetName = activeSheet.getName();
     var sheetRange = activeSheet.getDataRange();
@@ -1702,14 +1702,14 @@ function insertData() {
 
             callApi.init('insertData', function() {
                 result = callApi.insertData(rowArray);
-                results.push('\nRow ' + realRowId + ': ' + result);
+                resultMessages.push('\nRow ' + realRowId + ': ' + result.message);
             });
 
         }
     });
 
-    if (results.length > 0) {
-        ui.alert('Results', results, ui.ButtonSet.OK);
+    if (resultMessages.length > 0) {
+        ui.alert('Results', resultMessages, ui.ButtonSet.OK);
     }
     else {
         ui.alert('Error', 'Please mark at least on row for inclusion.', ui.ButtonSet.OK);
