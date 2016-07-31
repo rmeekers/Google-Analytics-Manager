@@ -32,6 +32,7 @@ At the moment this project is still in development mode.
 - [ ] Differentiate between GA Standard and GA Premium and adapt datavalidation to it
 
 ### Bugs / Todo
+- [ ] Before inserting data via the API, check the required columns to avoid that you get an error when updating an item after insert because some default values exist in GA but not in the sheet
 - [ ] Make sure onChange validation keeps working when a column gets deleted
 - [ ] Before running datavalidation, verify the columns / sheet structure
 - [x] Verify positions of dataRange.clearContent()

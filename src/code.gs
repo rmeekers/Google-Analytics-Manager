@@ -1185,8 +1185,6 @@ var api = {
             websiteUrl,
             cb
         ) {
-            //TODO: write profileId to sheet.
-            //      Probably by extending the result object with an action (write to sheet) next to the message so we can catch this action in the insertData function.
             var values = {};
             if (name) {values.name = name;}
             if (botFilteringEnabled) {values.botFilteringEnabled = botFilteringEnabled;}
@@ -1205,10 +1203,14 @@ var api = {
             try {
                 result.call = Analytics.Management.Profiles.insert(values, accountId, propertyId);
                 if (isObject(result)) {
-                    result.message = 'Success: ' + name + ' (' + result.call.id + ') from ' + propertyId + ' has been inserted';
+                    var viewId = result.call.id;
+                    result.status = 'Success';
+                    result.dataToUpdate = {'id': viewId};
+                    result.message = 'Success: ' + name + ' (' + viewId + ') from ' + propertyId + ' has been inserted';
                 }
             }
             catch(e) {
+                result.status = 'Fail';
                 result.message = e;
             }
 
@@ -1251,15 +1253,18 @@ var api = {
             if (type) {values.type = type;}
             if (websiteUrl) {values.websiteUrl = websiteUrl;}
 
-            var result;
+            var result = {};
+
             try {
-                result = Analytics.Management.Profiles.update(values, accountId, propertyId, viewId);
-                if (isObject(result)) {
-                    result = 'Success: ' + name + ' (' + viewId + ') from ' + propertyId + ' has been updated';
+                result.call = Analytics.Management.Profiles.update(values, accountId, propertyId, viewId);
+                if (isObject(result.call)) {
+                    result.status = 'Success';
+                    result.message = 'Success: ' + name + ' (' + viewId + ') from ' + propertyId + ' has been updated';
                 }
             }
             catch (e) {
-                result = e;
+                result.status = 'Fail';
+                result.message = e;
             }
 
             if (typeof cb === 'function') {
@@ -1740,7 +1745,8 @@ function insertData() {
     // Get the values of the sheet excluding the header row
     var sheetDataRange = activeSheet.getRange(2, 1, sheetRows, sheetColumns).getValues();
     var markedDataRange = [];
-    var callApi = api[getApiTypeBySheetName(sheetName)];
+    var apiType = getApiTypeBySheetName(sheetName);
+    var callApi = api[apiType];
     var result;
 
     // Iterate over the rows in the sheetDataRange
@@ -1754,6 +1760,17 @@ function insertData() {
             callApi.init('insertData', function() {
                 result = callApi.insertData(rowArray);
                 resultMessages.push('\nRow ' + realRowId + ': ' + result.message);
+
+                if (result.dataToUpdate) {
+                    var dataToUpdate = result.dataToUpdate;
+
+                    for (var key in dataToUpdate) {
+                        var columnId = getApiColumnIndexByName(apiType, key);
+                        var dataCell = activeSheet.getRange(realRowId, columnId, 1, 1);
+                        dataCell.setValue(dataToUpdate[key]);
+                    }
+                }
+
             });
 
         }
