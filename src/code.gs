@@ -1587,15 +1587,12 @@ var api = {
             var scope = insertData[7];
             var active = insertData[8];
             var existingData = this.getApiData(account, property, index);
-            var result;
 
             if(existingData && existingData !== false) {
-                result = this.updateApiData(account, property, name, index, scope, active);
-                return result;
+                return this.updateApiData(account, property, name, index, scope, active);
             }
             else {
-                result = this.insertApiData(account, property, name, index, scope, active);
-                return result;
+                return this.insertApiData(account, property, name, index, scope, active);
             }
 
         },
