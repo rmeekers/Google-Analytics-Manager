@@ -42,6 +42,7 @@ function createApiSheetColumnConfigArray(array) {
     return {
         names: [array.map(function(element) { return element.name; })],
         namesInApi: [array.map(function(element) { return element.nameInApi; })],
+        fieldType: [array.map(function(element) { return element.fieldType; })],
         colors: [array.map(function(element) { return element.color || colors.primary; })],
         dataValidation: array.map(function(element) {
             if (element.dataValidation) {
@@ -628,6 +629,7 @@ var api = {
                 {
                     name: 'Include',
                     nameInApi: 'include',
+                    fieldType: 'system',
                     dataValidation: [
                         'Yes',
                         'No'
@@ -635,25 +637,32 @@ var api = {
                 },{
                     name: 'Account Name',
                     nameInApi: 'accountName',
+                    fieldType: 'account',
                 },{
                     name: 'Account ID',
                     nameInApi: 'accountId',
+                    fieldType: 'account',
                 },{
                     name: 'Property Name',
                     nameInApi: 'propertyName',
+                    fieldType: 'property',
                 },{
                     name: 'Property ID',
                     nameInApi: 'webPropertyId',
+                    fieldType: 'property',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Name',
                     nameInApi: 'name',
+                    fieldType: 'view',
                 },{
                     name: 'ID',
                     nameInApi: 'id',
+                    fieldType: 'view',
                 },{
                     name: 'Bot Filtering Enabled',
                     nameInApi: 'botFilteringEnabled',
+                    fieldType: 'view',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
@@ -661,6 +670,7 @@ var api = {
                 },{
                     name: 'Currency',
                     nameInApi: 'currency',
+                    fieldType: 'view',
                     dataValidation: [
                         'ARS',
                         'AUD',
@@ -698,6 +708,7 @@ var api = {
                 },{
                     name: 'eCommerce Tracking',
                     nameInApi: 'eCommerceTracking',
+                    fieldType: 'view',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
@@ -705,15 +716,19 @@ var api = {
                 },{
                     name: 'Exclude Query Params',
                     nameInApi: 'excludeQueryParameters',
+                    fieldType: 'view',
                 },{
                     name: 'Site Search Category Params',
                     nameInApi: 'siteSearchCategoryParameters',
+                    fieldType: 'view',
                 },{
                     name: 'Site Search Query Params',
                     nameInApi: 'siteSearchQueryParameters',
+                    fieldType: 'view',
                 },{
                     name: 'Strip Site Search Category Params',
                     nameInApi: 'stripSiteSearchCategoryParameters',
+                    fieldType: 'view',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
@@ -721,6 +736,7 @@ var api = {
                 },{
                     name: 'Strip Site Search Query Params',
                     nameInApi: 'stripSiteSearchQueryParameters',
+                    fieldType: 'view',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
@@ -728,6 +744,7 @@ var api = {
                 },{
                     name: 'Timezone',
                     nameInApi: 'timezone',
+                    fieldType: 'view',
                     dataValidation: [
                         'Africa/Abidjan',
                         'Africa/Accra',
@@ -1151,6 +1168,7 @@ var api = {
                 },{
                     name: 'Type',
                     nameInApi: 'type',
+                    fieldType: 'view',
                     dataValidation: [
                         'WEB',
                         'APP'
@@ -1159,6 +1177,7 @@ var api = {
                 },{
                     name: 'Website URL',
                     nameInApi: 'websiteUrl',
+                    fieldType: 'view',
                     regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
                 }
             ];
@@ -1227,10 +1246,28 @@ var api = {
             try {
                 result.call = Analytics.Management.Profiles.insert(values, accountId, propertyId);
                 if (isObject(result)) {
-                    var viewId = result.call.id;
                     result.status = 'Success';
-                    result.dataToUpdate = {'id': viewId};
-                    result.message = 'Success: ' + name + ' (' + viewId + ') from ' + propertyId + ' has been inserted';
+                    var insertedData = [
+                        result.call.name,
+                        result.call.id,
+                        result.call.botFilteringEnabled,
+                        result.call.currency,
+                        result.call.eCommerceTracking,
+                        result.call.excludeQueryParameters,
+                        result.call.siteSearchCategoryParameters,
+                        result.call.siteSearchQueryParameters,
+                        result.call.stripSiteSearchCategoryParameters,
+                        result.call.stripSiteSearchQueryParameters,
+                        result.call.timezone,
+                        result.call.type,
+                        result.call.websiteUrl
+                    ];
+                    insertedData = replaceUndefinedInArray(insertedData, '');
+                    insertedData = replaceNullInArray(insertedData, '');
+                    result.insertedData = [insertedData];
+                    //TODO: defining the type should be improved (not hardcoded?)
+                    result.insertedDataType = 'view';
+                    result.message = 'Success: ' + name + ' (' + result.call.id + ') from ' + propertyId + ' has been inserted';
                 }
             }
             catch(e) {
@@ -1793,6 +1830,12 @@ function insertData() {
                         var dataCell = activeSheet.getRange(realRowId, columnId, 1, 1);
                         dataCell.setValue(dataToUpdate[key]);
                     }
+                }
+
+                if (result.insertedData) {
+                    var colRange = getApiColumnIndexRangeByType(apiType, result.insertedDataType);
+                    var dataRange = activeSheet.getRange(realRowId, colRange[0], 1, colRange[1] - colRange[0] + 1);
+                    dataRange.setValues(result.insertedData);
                 }
 
             });
