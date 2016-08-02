@@ -68,6 +68,17 @@ function replaceUndefinedInArray(array, value) {
 }
 
 /**
+ * Replace 'null' in a given array with another value
+ * @param {array} array
+ * @param {string} value
+ */
+function replaceNullInArray(array, value) {
+    return array.map(function(el) {
+        return el === null ? value : el;
+    });
+}
+
+/**
  * Sorts an array of objects
  *
  *  @param {array}      array               - Array of objects
@@ -206,6 +217,19 @@ function getApiTypeBySheetName(sheetName) {
 function getApiColumnIndexByName(apiType, nameInApi) {
     var columns = api[apiType].sheetColumnConfig().namesInApi;
     return columns[0].indexOf(nameInApi) + 1;
+}
+
+/**
+ * Helper function to retrieve the columnIndexRange for a given apiType based on the fieldType
+ * @param {string} apiType
+ * @param {string} fieldType
+ * @return {object}
+ */
+function getApiColumnIndexRangeByType(apiType, fieldType) {
+    var columns = api[apiType].sheetColumnConfig().fieldType;
+    var firstPosition = columns[0].indexOf(fieldType) + 1;
+    var lastPosition = columns[0].lastIndexOf(fieldType) + 1;
+    return [firstPosition, lastPosition];
 }
 
 /**
