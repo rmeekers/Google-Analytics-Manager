@@ -496,6 +496,7 @@ var api = {
                 {
                     name: 'Include',
                     nameInApi: 'include',
+                    fieldType: 'system',
                     dataValidation: [
                         'Yes',
                         'No'
@@ -503,20 +504,25 @@ var api = {
                 },{
                     name: 'Account Name',
                     nameInApi: 'accountName',
+                    fieldType: 'account',
                 },{
                     name: 'Account ID',
                     nameInApi: 'accountId',
+                    fieldType: 'account',
                 },{
                     name: 'Name',
                     nameInApi: 'name',
+                    fieldType: 'property',
                     regexValidation: /.*\S.*/
                 },{
                     name: 'ID',
                     nameInApi: 'id',
+                    fieldType: 'property',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Industry',
                     nameInApi: 'industryVertical',
+                    fieldType: 'property',
                     dataValidation: [
                         'UNSPECIFIED',
                         'ARTS_AND_ENTERTAINMENT',
@@ -550,9 +556,11 @@ var api = {
                 },{
                     name: 'Default View ID',
                     nameInApi: 'defaultProfileId',
+                    fieldType: 'property',
                 },{
                     name: 'Starred',
                     nameInApi: 'starred',
+                    fieldType: 'property',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
@@ -560,6 +568,7 @@ var api = {
                 },{
                     name: 'Website URL',
                     nameInApi: 'websiteUrl',
+                    fieldType: 'property',
                     regexValidation: /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
                 }
             ];
@@ -1456,6 +1465,7 @@ var api = {
                 {
                     name: 'Include',
                     nameInApi: 'include',
+                    fieldType: 'system',
                     dataValidation: [
                         'Yes',
                         'No'
@@ -1463,27 +1473,32 @@ var api = {
                 },{
                     name: 'Account Name',
                     nameInApi: 'accountName',
+                    fieldType: 'account',
                 },{
                     name: 'Account ID',
                     nameInApi: 'profileRefAccountId',
+                    fieldType: 'account',
                 },{
                     name: 'Property Name',
                     nameInApi: 'profileRefWebPropertyName',
+                    fieldType: 'property',
                 },{
                     name: 'Property Id',
                     nameInApi: 'profileRefWebPropertyId',
+                    fieldType: 'property',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'View Name',
                     nameInApi: 'profileRefName',
+                    fieldType: 'view',
                 },{
                     name: 'Name',
-                    // TODO: verify if this is correct
-                    nameInApi: 'filterRefName',
+                    nameInApi: 'name',
+                    fieldType: 'filterLink',
                 },{
                     name: 'ID',
-                    // TODO: verify if this is correct
                     nameInApi: 'id',
+                    fieldType: 'filterLink',
                     regexValidation: /^[0-9]+$/
                 }
             ];
@@ -1549,6 +1564,7 @@ var api = {
                 {
                     name: 'Include',
                     nameInApi: 'include',
+                    fieldType: 'system',
                     dataValidation: [
                         'Yes',
                         'No'
@@ -1556,27 +1572,34 @@ var api = {
                 },{
                     name: 'Account Name',
                     nameInApi: 'accountName',
+                    fieldType: 'account',
                 },{
                     name: 'Account ID',
                     nameInApi: 'accountId',
+                    fieldType: 'account',
                 },{
                     name: 'Property Name',
                     nameInApi: 'webPropertyName',
+                    fieldType: 'property',
                 },{
                     name: 'Property ID',
                     nameInApi: 'webPropertyId',
+                    fieldType: 'property',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
                 },{
                     name: 'Name',
                     nameInApi: 'name',
+                    fieldType: 'customDimension',
                     regexValidation: /.*\S.*/
                 },{
                     name: 'Index',
                     nameInApi: 'index',
+                    fieldType: 'customDimension',
                     regexValidation: /^[0-9]{1,3}$/
                 },{
                     name: 'Scope',
                     nameInApi: 'scope',
+                    fieldType: 'customDimension',
                     dataValidation: [
                         'HIT',
                         'SESSION',
@@ -1587,6 +1610,7 @@ var api = {
                 },{
                     name: 'active',
                     nameInApi: 'include',
+                    fieldType: 'customDimension',
                     dataValidation: [
                         'TRUE',
                         'FALSE'
@@ -1636,6 +1660,18 @@ var api = {
             try {
                 result = Analytics.Management.CustomDimensions.insert(values, account, property);
                 if (isObject(result)) {
+                    result.status = 'Success';
+                    var insertedData = [
+                        result.call.name,
+                        result.call.index,
+                        result.call.scope,
+                        result.call.active,
+                    ];
+                    insertedData = replaceUndefinedInArray(insertedData, '');
+                    insertedData = replaceNullInArray(insertedData, '');
+                    result.insertedData = [insertedData];
+                    //TODO: defining the type should be improved (not hardcoded?)
+                    result.insertedDataType = 'customDimension';
                     result = 'Success: ' + index + ' from ' + property + ' has been inserted.';
                 }
             }
@@ -1822,6 +1858,7 @@ function insertData() {
                 result = callApi.insertData(rowArray);
                 resultMessages.push('\nRow ' + realRowId + ': ' + result.message);
 
+                // Write the specified data to the sheet
                 if (result.dataToUpdate) {
                     var dataToUpdate = result.dataToUpdate;
 
@@ -1832,6 +1869,7 @@ function insertData() {
                     }
                 }
 
+                // Write insertedData back to the sheet
                 if (result.insertedData) {
                     var colRange = getApiColumnIndexRangeByType(apiType, result.insertedDataType);
                     var dataRange = activeSheet.getRange(realRowId, colRange[0], 1, colRange[1] - colRange[0] + 1);
