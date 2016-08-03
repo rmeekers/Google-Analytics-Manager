@@ -14,7 +14,7 @@ At the moment this project is still in development mode.
 ### GA Specific assets
 - [x] List Properties
 - [x] Add dataValidation (regex) for the required Properties columns
-- [ ] Insert / Update Properties
+- [x] Insert / Update Properties
 - [x] List Views
 - [ ] Add dataValidation (regex) for the required Views columns
 - [x] Insert / Update Views

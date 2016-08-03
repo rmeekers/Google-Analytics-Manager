@@ -585,6 +585,108 @@ var api = {
                 return propertiesList;
             }
         },
+        getApiData: function(account, id, cb) {
+            var result;
+
+            try {
+                result = Analytics.Management.Webproperties.get(account, id);
+            }
+            catch (e) {
+                result = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
+        insertApiData: function(
+            accountId,
+            name,
+            industryVertical,
+            starred,
+            websiteUrl,
+            cb
+        ) {
+            var values = {};
+            if (name) {values.name = name;}
+            if (industryVertical) {values.industryVertical = industryVertical;}
+            if (starred) {values.starred = starred;}
+            if (websiteUrl) {values.websiteUrl = websiteUrl;}
+            var result = {};
+
+            try {
+                result.call = Analytics.Management.Webproperties.insert(values, accountId);
+                if (isObject(result)) {
+                    result.status = 'Success';
+                    var insertedData = [
+                        result.call.name,
+                        result.call.id,
+                        result.call.industryVertical,
+                        result.call.defaultProfileId,
+                        result.call.starred,
+                        result.call.websiteUrl
+                    ];
+                    insertedData = replaceUndefinedInArray(insertedData, '');
+                    insertedData = replaceNullInArray(insertedData, '');
+                    result.insertedData = [insertedData];
+                    //TODO: defining the type should be improved (not hardcoded?)
+                    result.insertedDataType = 'property';
+                    result.message = 'Success: ' + name + ' (' + result.call.id + ') has been inserted';
+                }
+            }
+            catch(e) {
+                result.status = 'Fail';
+                result.message = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
+        updateApiData: function(
+            accountId,
+            name,
+            id,
+            industryVertical,
+            defaultProfileId,
+            starred,
+            websiteUrl,
+            cb
+        ) {
+            var values = {};
+            if (name) {values.name = name;}
+            if (industryVertical) {values.industryVertical = industryVertical;}
+            if (defaultProfileId) {values.defaultProfileId = defaultProfileId;}
+            if (starred) {values.starred = starred;}
+            if (websiteUrl) {values.websiteUrl = websiteUrl;}
+
+            var result = {};
+
+            try {
+                result.call = Analytics.Management.Webproperties.update(values, accountId, id);
+                if (isObject(result.call)) {
+                    result.status = 'Success';
+                    result.message = 'Success: ' + name + ' (' + id + ') has been updated';
+                }
+            }
+            catch (e) {
+                result.status = 'Fail';
+                result.message = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
         getData: function(cb) {
             var results = [];
 
@@ -610,7 +712,39 @@ var api = {
             }, this);
 
             cb(results);
-        }
+        },
+        insertData: function(insertData) {
+
+            var accountId = insertData[2];
+            var name = insertData[3];
+            var id = insertData[4];
+            var industryVertical = insertData[5];
+            var defaultProfileId = insertData[6];
+            var starred = insertData[7];
+            var websiteUrl = insertData[8];
+            var existingPropertyId = this.getApiData(accountId, id).id;
+
+            if(!id || id != existingPropertyId) {
+                return this.insertApiData(
+                    accountId,
+                    name,
+                    industryVertical,
+                    starred,
+                    websiteUrl
+                );
+            }
+            else if(id == existingPropertyId) {
+                return this.updateApiData(
+                  accountId,
+                  name,
+                  id,
+                  industryVertical,
+                  defaultProfileId,
+                  starred,
+                  websiteUrl
+                );
+            }
+        },
     },
     views: {
         name: 'Views',
