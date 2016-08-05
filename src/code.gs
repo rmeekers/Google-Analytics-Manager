@@ -137,23 +137,6 @@ function isObject(obj) {
 }
 
 /**
- * onOpen function runs on application open
- * @param {*} e
- */
-function onOpen(e) {
-    ui = SpreadsheetApp.getUi();
-    return ui
-        .createMenu('GA Manager')
-        .addItem('Audit GA', 'showSidebar')
-        .addItem('Insert / Update Data from active sheet to GA', 'insertData')
-        .addSeparator()
-        .addSubMenu(ui.createMenu('Advanced')
-            .addItem('Insert Properties Sheet', 'createSheetProperties')
-            .addItem('Insert Views Sheet', 'createSheetViews'))
-        .addToUi();
-}
-
-/**
  * Helper function to create a new Properties sheet from the menu
  */
 function createSheetProperties() {
@@ -234,6 +217,11 @@ function getApiColumnIndexRangeByType(apiType, fieldType) {
 }
 
 /**
+ * Sheet / Application related functions
+ ******************
+ */
+
+/**
  * onInstall runs when the script is installed
  * @param {*} e
  */
@@ -242,7 +230,24 @@ function onInstall(e) {
 }
 
 /**
- * Show the showSidebar
+ * onOpen function runs on application open
+ * @param {*} e
+ */
+function onOpen(e) {
+    ui = SpreadsheetApp.getUi();
+    return ui
+        .createMenu('GA Manager')
+        .addItem('Audit GA', 'showSidebar')
+        .addItem('Insert / Update Data from active sheet to GA', 'insertData')
+        .addSeparator()
+        .addSubMenu(ui.createMenu('Advanced')
+            .addItem('Insert Properties Sheet', 'createSheetProperties')
+            .addItem('Insert Views Sheet', 'createSheetViews'))
+        .addToUi();
+}
+
+/**
+ * Show the sidebar
  */
 function showSidebar() {
     var ui = HtmlService
@@ -256,6 +261,10 @@ function showSidebar() {
         .showSidebar(ui);
 }
 
+/**
+ * Get the available reports from the api
+ * @return {array} with available reports
+ */
 function getReports() {
     var arr = [];
     for (var p in api) {
@@ -268,9 +277,13 @@ function getReports() {
     return JSON.stringify(arr);
 }
 
+/**
+ * Save the GA data from the selected report
+ * @return {string} account id's
+ * @return {string} report
+ */
 function saveReportDataFromSidebar(data) {
     var parsed = JSON.parse(data);
-    //return createSheet(parsed.report);
     return generateReport(parsed.ids, parsed.report);
 }
 
@@ -313,9 +326,12 @@ var sheet = {
 
         return this;
     },
-    // TODO: do something usefull after validation
-    // FIXME: return correct row number
+    /**
+     * Validate data in the sheet
+     */
     validate: function() {
+        // TODO: do something usefull after validation
+        // FIXME: return correct row number
         var results = [];
 
         for (var column = 0; column < this.data.length; column++) {
@@ -375,6 +391,9 @@ var sheet = {
         cb.call(this);
     },
 
+    /**
+     * Build the sheet header
+     */
     buildHeader: function(cb) {
         var rowHeight = 30;
         var headerRow = this.sheet.setRowHeight(1, rowHeight).getRange(1, 1, 1, this.headerLength);
@@ -394,6 +413,9 @@ var sheet = {
         cb.call(this);
     },
 
+    /**
+     * Set the sheet dataValidation
+     */
     buildDataValidation: function(cb) {
 
         var dataValidationArray = this.sheetColumnConfig.dataValidation;
@@ -428,6 +450,9 @@ var sheet = {
         cb.call(this);
     },
 
+    /**
+     * Cleanup the sheet
+     */
     cleanup: function() {
         // auto resize all columns
         this.sheetColumnConfig.names[0].forEach(function(e, i) {
@@ -435,6 +460,9 @@ var sheet = {
         }, this);
     },
 
+    /**
+     * Build the sheet structure
+     */
     buildSheet: function() {
         this.setNumberOfColumns(function() {
             this.clearSheet(function() {
@@ -447,6 +475,9 @@ var sheet = {
         });
     },
 
+    /**
+     * Build the sheet structure and insert data
+     */
     buildData: function() {
         this.setNumberOfColumns(function() {
             this.clearSheet(function() {
@@ -491,6 +522,9 @@ var api = {
 
             return this;
         },
+        /**
+         * Column and field related config properties
+         */
         sheetColumnConfig: function() {
             var data = [
                 {
@@ -767,6 +801,9 @@ var api = {
 
             return this;
         },
+        /**
+         * Column and field related config properties
+         */
         sheetColumnConfig: function() {
             var data = [
                 {
@@ -1594,6 +1631,9 @@ var api = {
 
             return this;
         },
+        /**
+         * Column and field related config properties
+         */
         sheetColumnConfig: function() {
             var data = [
                 {
@@ -1693,6 +1733,9 @@ var api = {
 
             return this;
         },
+        /**
+         * Column and field related config properties
+         */
         sheetColumnConfig: function() {
             var data = [
                 {
@@ -1942,6 +1985,11 @@ function generateReport(accounts, apiType) {
         });
     }, {'accounts': accounts});
 }
+
+/**
+ * Validate the changed data
+ * @param {string} event
+ */
 function onChangeValidation(event) {
     // TODO: finalize & cleanup function
     // TODO: install change detection trigger programatically
@@ -1963,7 +2011,6 @@ function onChangeValidation(event) {
 
 /**
  * Insert / update data marked for inclusion from the active sheet to Google Analytics
- *
  * @return Displays a message to the user
  */
 function insertData() {
