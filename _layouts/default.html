@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<title>{{ page.title }}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link rel="stylesheet" type="text/css" href="css/normalize.css" media="screen">
+            <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+            <link rel="stylesheet" type="text/css" href="css/stylesheet.css" media="screen">
+            <link rel="stylesheet" type="text/css" href="css/github-light.css" media="screen">
+		</head>
+		<body>
+			<nav>
+	    		<ul>
+	        		<li><a href="/">Home</a></li>
+		        	<li><a href="/documentation">Documentation</a></li>
+	        		<li><a href="/contact">Blog</a></li>
+	    		</ul>
+			</nav>
+            {% if index.html include homepage_teaser.html %}
+			<div class="main-content">
+
+			{{ content }}
+
+			</div><!-- /.container -->
+            <footer class="site-footer">
+              <span class="site-footer-owner"><a href="https://github.com/rmeekers/Google-Analytics-Manager">Google Analytics Manager</a> is maintained by <a href="https://github.com/rmeekers">rmeekers</a>.</span>
+
+              <span class="site-footer-credits">Hosted by Github Pages</span>
+            </footer>
+		</body>
+	</html>
