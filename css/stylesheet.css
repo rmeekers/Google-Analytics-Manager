@@ -243,3 +243,25 @@ a {
 @media screen and (max-width: 42em) {
   .site-footer {
     font-size: 0.9rem; } }
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+  margin-left: 10px;
+  font-size: 1rem;
+}
+.icon-twitter {
+    color: #1da1f2;
+}
+.icon-github {
+    color: #000000;
+}
+.icon-linkedin {
+    color: #0077b5;
+}
+a.icon-link:hover {
+    text-decoration: none;
+}
