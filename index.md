@@ -32,7 +32,7 @@ It enables you to:
 
 You'll need the following:
 
-* a Google Sheet – follow the steps below or create a copy from [this sheet](https://docs.google.com/spreadsheets/d/1QrJzquookyryTLuKEI2BoX822jAVcSlg9ExqVw1Eywc/copy)
+* a Google Sheet – follow the steps below or create a copy from [this sheet](https://docs.google.com/spreadsheets/d/1QrJzquookyryTLuKEI2BoX822jAVcSlg9ExqVw1Eywc/copy){:target="_blank"}
 * access to at least one Google Analytics account
 
 ## Installation Steps
@@ -82,7 +82,7 @@ Please file an issue on the project page on GitHub and provide as much informati
 
 # Changelog
 
-See the [Milestones page](https://github.com/rmeekers/Google-Analytics-Manager/milestones?state=closed) on GitHub.
+See the [Milestones page](https://github.com/rmeekers/Google-Analytics-Manager/milestones?state=closed){:target="_blank"} on GitHub.
 
 # Contact
 
