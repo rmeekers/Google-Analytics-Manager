@@ -82,7 +82,7 @@ Please file an issue on the project page on GitHub and provide as much informati
 
 # Changelog
 
-See the [Milestones page](https://github.com/rmeekers/Google-Analytics-Manager/milestones?state=closed){:target="_blank"} on GitHub.
+See the [Issues page](https://github.com/rmeekers/Google-Analytics-Manager/issues?q=is%3Aissue+is%3Aclosed){:target="_blank"} on GitHub.
 
 # Contact
 
