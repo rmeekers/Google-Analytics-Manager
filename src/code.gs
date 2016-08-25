@@ -757,8 +757,9 @@ var api = {
             var starred = insertData[7];
             var websiteUrl = insertData[8];
             var existingPropertyId = this.getApiData(accountId, id).id;
+            var result = {};
 
-            if(!id || id != existingPropertyId) {
+            if(!id) {
                 return this.insertApiData(
                     accountId,
                     name,
@@ -777,6 +778,11 @@ var api = {
                   starred,
                   websiteUrl
                 );
+            }
+            else if(id != existingPropertyId) {
+                result.status = 'Fail';
+                result.message = 'Property does not exist. Please verify Account and/or Property ID';
+                return result;
             }
         },
     },
@@ -1570,8 +1576,9 @@ var api = {
             var type = insertData[16];
             var websiteUrl = insertData[17];
             var existingViewId = this.getApiData(accountId, propertyId, viewId).id;
+            var result = {};
 
-            if(!viewId || viewId != existingViewId) {
+            if(!viewId) {
                 return this.insertApiData(
                     accountId,
                     propertyId,
@@ -1607,6 +1614,11 @@ var api = {
                     type,
                     websiteUrl
                 );
+            }
+            else if(viewId != existingViewId) {
+                result.status = 'Fail';
+                result.message = 'View does not exist. Please verify Account, Property and/or View ID';
+                return result;
             }
         },
     },
