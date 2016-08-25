@@ -3,6 +3,8 @@
  *
  * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
  * @author Rutger Meekers [rutger@meekers.eu]
+ * @version 1.0
+ * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
  *
  * Global Logger, SpreadsheetApp, HtmlService, Analytics
  */
