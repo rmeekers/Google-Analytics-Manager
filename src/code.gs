@@ -885,7 +885,7 @@ var api = {
                         'JPY',
                         'KRW',
                         'LTL',
-                        'LVL',
+                        'LVL'
                         'MAD',
                         'MXN',
                         'MYR',
@@ -1252,6 +1252,7 @@ var api = {
                         'Australia/Melbourne',
                         'Australia/Perth',
                         'Australia/Sydney',
+                        'Etc/GMT',
                         'Europe/Amsterdam',
                         'Europe/Andorra',
                         'Europe/Athens',
