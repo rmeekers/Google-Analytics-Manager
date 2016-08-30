@@ -1688,12 +1688,17 @@ var api = {
                     nameInApi: 'profileRefName',
                     fieldType: 'view',
                 },{
-                    name: 'Name',
-                    nameInApi: 'name',
+                    name: 'Filter Link ID',
+                    nameInApi: 'id',
+                    fieldType: 'filterLink',
+                    regexValidation: /^[0-9]+$/
+                }{
+                    name: 'Filter Name',
+                    nameInApi: 'filterRef.name',
                     fieldType: 'filterLink',
                 },{
-                    name: 'ID',
-                    nameInApi: 'id',
+                    name: 'Filter ID',
+                    nameInApi: 'filterRef.id',
                     fieldType: 'filterLink',
                     regexValidation: /^[0-9]+$/
                 }
@@ -1719,6 +1724,7 @@ var api = {
                                     property.name,
                                     property.id,
                                     view.name,
+                                    fl.id,
                                     fl.filterRef.name,
                                     fl.filterRef.id
                                 ];
