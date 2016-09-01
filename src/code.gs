@@ -885,7 +885,7 @@ var api = {
                         'JPY',
                         'KRW',
                         'LTL',
-                        'LVL'
+                        'LVL',
                         'MAD',
                         'MXN',
                         'MYR',
