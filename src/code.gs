@@ -2004,7 +2004,7 @@ function generateReport(accounts, apiType) {
         callApi.getData(function(data) {
             // Verify if data is present
             if (data[0] === undefined || !data[0].length) {
-                throw new Error('No data found for ' + type + ' in ' + account.name + '.');
+                throw new Error('No data found for ' + apiType + ' in ' + accounts[0].name + '.');
             }
 
             sheet
