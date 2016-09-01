@@ -1679,7 +1679,7 @@ var api = {
                     nameInApi: 'profileRefWebPropertyName',
                     fieldType: 'property',
                 },{
-                    name: 'Property Id',
+                    name: 'Property ID',
                     nameInApi: 'profileRefWebPropertyId',
                     fieldType: 'property',
                     regexValidation: /(UA|YT|MO)-\d+-\d+/
@@ -1688,11 +1688,21 @@ var api = {
                     nameInApi: 'profileRefName',
                     fieldType: 'view',
                 },{
+                    name: 'View ID',
+                    nameInApi: 'profileRefId',
+                    fieldType: 'view',
+                },{
                     name: 'Filter Link ID',
                     nameInApi: 'id',
                     fieldType: 'filterLink',
                     regexValidation: /^[0-9]+$/
-                }{
+                },{
+                    name: 'Filter Link Rank',
+                    nameInApi: 'rank',
+                    fieldType: 'filterLink',
+                    // Allow integer 0-255
+                    regexValidation: /^([0-9]{1}|[1-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/
+                },{
                     name: 'Filter Name',
                     nameInApi: 'filterRef.name',
                     fieldType: 'filterLink',
@@ -1705,9 +1715,109 @@ var api = {
             ];
             return createApiSheetColumnConfigArray(data);
         },
-        requestData: function(account, property, view, cb) {
+        listApiData: function(account, property, view, cb) {
+            //TODO: add try catch
             var flList = Analytics.Management.ProfileFilterLinks.list(account, property, view).getItems();
-            return cb.call(this, flList);
+
+            if (typeof cb === 'function') {
+                return cb.call(this, flList);
+            }
+            else {
+                return flList;
+            }
+        },
+        getApiData: function(account, property, view, id, cb) {
+            var result;
+
+            try {
+                result = Analytics.Management.ProfileFilterLinks.get(account, property, view, id);
+            }
+            catch (e) {
+                result = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
+        insertApiData: function(
+            accountId,
+            propertyId,
+            viewId,
+            filterLinkFilterRefId,
+            filterLinkRank,
+            cb
+        ) {
+            var values = {};
+            values.filterRef = {};
+            if (filterLinkFilterRefId) {values.filterRef.id = filterLinkFilterRefId;}
+            if (filterLinkRank) {values.rank = filterLinkRank;}
+            var result = {};
+
+            try {
+                result.call = Analytics.Management.ProfileFilterLinks.insert(values, accountId, propertyId, viewId);
+                if (isObject(result)) {
+                    result.status = 'Success';
+                    var insertedData = [
+                        result.call.id,
+                        result.call.rank,
+                        result.call.filterRef.name,
+                        result.call.filterRef.id
+                    ];
+                    insertedData = replaceUndefinedInArray(insertedData, '');
+                    insertedData = replaceNullInArray(insertedData, '');
+                    result.insertedData = [insertedData];
+                    //TODO: defining the type should be improved (not hardcoded?)
+                    result.insertedDataType = 'filterLink';
+                    result.message = 'Success: ' + result.call.id + ' for ' + viewId + ' has been inserted';
+                }
+            }
+            catch(e) {
+                result.status = 'Fail';
+                result.message = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
+        },
+        updateApiData: function(
+            accountId,
+            propertyId,
+            viewId,
+            filterLinkId,
+            filterLinkRank,
+            cb
+        ) {
+            var values = {};
+            if (filterLinkRank) {values.rank = filterLinkRank;}
+
+            var result = {};
+
+            try {
+                result.call = Analytics.Management.ProfileFilterLinks.update(values, accountId, propertyId, viewId, filterLinkId);
+                if (isObject(result.call)) {
+                    result.status = 'Success';
+                    result.message = 'Success: ' + filterLinkId + ' from ' + viewId + ' has been updated';
+                }
+            }
+            catch (e) {
+                result.status = 'Fail';
+                result.message = e;
+            }
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            }
+            else {
+                return result;
+            }
         },
         getData: function(cb) {
             var results = [];
@@ -1715,7 +1825,7 @@ var api = {
             this.account.forEach(function(account) {
                 account.webProperties.forEach(function(property) {
                     property.profiles.forEach(function(view) {
-                        this.requestData(account.id, property.id, view.id, function(flList) {
+                        this.listApiData(account.id, property.id, view.id, function(flList) {
                             flList.forEach(function(fl) {
                                 var defaults = [
                                     '',
@@ -1724,7 +1834,9 @@ var api = {
                                     property.name,
                                     property.id,
                                     view.name,
+                                    view.id,
                                     fl.id,
+                                    fl.rank,
                                     fl.filterRef.name,
                                     fl.filterRef.id
                                 ];
@@ -1738,7 +1850,43 @@ var api = {
             }, this);
 
             cb(results);
-        }
+        },
+        insertData: function(insertData) {
+
+            var accountId = insertData[2];
+            var propertyId = insertData[4];
+            var viewId = insertData[6];
+            var filterLinkId = insertData[7];
+            var filterLinkRank = insertData[8]
+            var filterLinkFilterRefName = insertData[9];
+            var filterLinkFilterRefId = insertData[10];
+            var existingFilterLinkId = this.getApiData(accountId, propertyId, viewId, filterLinkId).id;
+            var result = {};
+
+            if(!filterLinkId) {
+                return this.insertApiData(
+                    accountId,
+                    propertyId,
+                    viewId,
+                    filterLinkFilterRefId,
+                    filterLinkRank
+                );
+            }
+            else if(filterLinkId == existingFilterLinkId) {
+                return this.updateApiData(
+                    accountId,
+                    propertyId,
+                    viewId,
+                    filterLinkId,
+                    filterLinkRank
+                );
+            }
+            else if(filterLinkId != existingFilterLinkId) {
+                result.status = 'Fail';
+                result.message = 'FilterLink does not exist. Please verify Account, Property, View and/or FilterLink ID';
+                return result;
+            }
+        },
     },
     customDimensions: {
         name: 'Custom Dimensions',
