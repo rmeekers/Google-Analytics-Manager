@@ -1,7 +1,6 @@
 # Google-Analytics-Manager
 Tool to manage your Google Analytics accounts via a Google Sheet.
-
-At the moment this project is still in development mode.
+See [this website](http://rutger.meekers.eu/Google-Analytics-Manager/) for more information.
 
 ## Roadmap
 See [Milestones](https://github.com/rmeekers/Google-Analytics-Manager/milestones)
