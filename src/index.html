@@ -269,9 +269,9 @@
             errorHandleUserRateLimit: function() {
                 if (!this.flag) {
                     this.flag = true;
-                    window.alert('It looks like you\'ve you hit the user rate limit. ' +
-                        'We\'ll continue to ask for the data, but feel free to cancel ' +
-                        'the request and try again later.');
+                    window.alert('It looks like you\'ve exceeded the API User Rate Limit. ' +
+                        'We\'ll continue to retrieve the data. If it takes too long,' +
+                        'feel free to cancel the request and try again later.');
                 }
                 return setTimeout(function() {
                     $('#submit').trigger('click');
