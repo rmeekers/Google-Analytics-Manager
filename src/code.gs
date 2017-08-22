@@ -655,7 +655,7 @@ var api = {
 
             try {
                 result.call = Analytics.Management.Webproperties.insert(values, accountId);
-                if (isObject(result)) {
+                if (isObject(result.call)) {
                     result.status = 'Success';
                     var insertedData = [
                         result.call.name,
@@ -1442,7 +1442,7 @@ var api = {
 
             try {
                 result.call = Analytics.Management.Profiles.insert(values, accountId, propertyId);
-                if (isObject(result)) {
+                if (isObject(result.call)) {
                     result.status = 'Success';
                     var insertedData = [
                         result.call.name,
@@ -1760,7 +1760,7 @@ var api = {
 
             try {
                 result.call = Analytics.Management.ProfileFilterLinks.insert(values, accountId, propertyId, viewId);
-                if (isObject(result)) {
+                if (isObject(result.call)) {
                     result.status = 'Success';
                     var insertedData = [
                         result.call.id,
@@ -2009,11 +2009,11 @@ var api = {
                 'scope': scope,
                 'active': active
             };
-            var result;
+            var result = {};
 
             try {
-                result = Analytics.Management.CustomDimensions.insert(values, account, property);
-                if (isObject(result)) {
+                result.call = Analytics.Management.CustomDimensions.insert(values, account, property);
+                if (isObject(result.call)) {
                     result.status = 'Success';
                     var insertedData = [
                         result.call.name,
@@ -2026,11 +2026,12 @@ var api = {
                     result.insertedData = [insertedData];
                     //TODO: defining the type should be improved (not hardcoded?)
                     result.insertedDataType = 'customDimension';
-                    result = 'Success: ' + index + ' from ' + property + ' has been inserted.';
+                    result.message = 'Success: ' + result.call.index + ' from ' + result.call.webPropertyId + ' has been inserted.';
                 }
             }
             catch(e) {
-                result = e;
+                result.status = 'Fail';
+                result.message = e;
             }
 
             if (typeof cb === 'function') {
@@ -2046,15 +2047,16 @@ var api = {
                 'scope': scope,
                 'active': active
             };
-            var result;
+            var result = {};
             try {
-                result = Analytics.Management.CustomDimensions.update(values, account, property, index);
-                if (isObject(result)) {
-                    result = 'Success: ' + index + ' from ' + property + ' has been updated';
+                result.call = Analytics.Management.CustomDimensions.update(values, account, property, index);
+                if (isObject(result.call)) {
+                    result.message = 'Success: ' + result.call.index + ' from ' + result.call.webPropertyId + ' has been updated';
                 }
             }
             catch (e) {
-                result = e;
+                result.status = 'Fail';
+                result.message = e;
             }
 
             if (typeof cb === 'function') {
