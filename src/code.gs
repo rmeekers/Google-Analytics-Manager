@@ -1536,35 +1536,37 @@ var api = {
             var results = [];
 
             this.account.forEach(function(account) {
-                account.webProperties.forEach(function(property) {
-                    this.listApiData(account.id, property.id, function(viewsList) {
-                        viewsList.forEach(function(view) {
-                            var defaults = [
-                                '',
-                                account.name,
-                                account.id,
-                                property.name,
-                                property.id,
-                                view.name,
-                                view.id,
-                                view.botFilteringEnabled,
-                                view.currency,
-                                view.eCommerceTracking,
-                                view.excludeQueryParameters,
-                                view.siteSearchCategoryParameters,
-                                view.siteSearchQueryParameters,
-                                view.stripSiteSearchCategoryParameters,
-                                view.stripSiteSearchQueryParameters,
-                                view.timezone,
-                                view.type,
-                                view.websiteUrl
-                            ];
-                            defaults = replaceUndefinedInArray(defaults, '');
+                try {
+                    account.webProperties.forEach(function(property) {
+                        this.listApiData(account.id, property.id, function(viewsList) {
+                            viewsList.forEach(function(view) {
+                                var defaults = [
+                                    '',
+                                    account.name,
+                                    account.id,
+                                    property.name,
+                                    property.id,
+                                    view.name,
+                                    view.id,
+                                    view.botFilteringEnabled,
+                                    view.currency,
+                                    view.eCommerceTracking,
+                                    view.excludeQueryParameters,
+                                    view.siteSearchCategoryParameters,
+                                    view.siteSearchQueryParameters,
+                                    view.stripSiteSearchCategoryParameters,
+                                    view.stripSiteSearchQueryParameters,
+                                    view.timezone,
+                                    view.type,
+                                    view.websiteUrl
+                                ];
+                                defaults = replaceUndefinedInArray(defaults, '');
 
-                            results.push(defaults);
-                        }, this);
-                    });
-                }, this);
+                                results.push(defaults);
+                            }, this);
+                        });
+                    }, this);
+                } catch (e){}
             }, this);
 
             cb(results);
@@ -1824,30 +1826,34 @@ var api = {
             var results = [];
 
             this.account.forEach(function(account) {
-                account.webProperties.forEach(function(property) {
-                    property.profiles.forEach(function(view) {
-                        this.listApiData(account.id, property.id, view.id, function(flList) {
-                            flList.forEach(function(fl) {
-                                var defaults = [
-                                    '',
-                                    account.name,
-                                    account.id,
-                                    property.name,
-                                    property.id,
-                                    view.name,
-                                    view.id,
-                                    fl.id,
-                                    fl.rank,
-                                    fl.filterRef.name,
-                                    fl.filterRef.id
-                                ];
-                                defaults = replaceUndefinedInArray(defaults, '');
+                try {
+                    account.webProperties.forEach(function(property) {
+                        try {
+                            property.profiles.forEach(function(view) {
+                                this.listApiData(account.id, property.id, view.id, function(flList) {
+                                    flList.forEach(function(fl) {
+                                        var defaults = [
+                                            '',
+                                            account.name,
+                                            account.id,
+                                            property.name,
+                                            property.id,
+                                            view.name,
+                                            view.id,
+                                            fl.id,
+                                            fl.rank,
+                                            fl.filterRef.name,
+                                            fl.filterRef.id
+                                        ];
+                                        defaults = replaceUndefinedInArray(defaults, '');
 
-                                results.push(defaults);
+                                        results.push(defaults);
+                                    }, this);
+                                });
                             }, this);
-                        });
+                        } catch (e){}
                     }, this);
-                }, this);
+                } catch (e){}
             }, this);
 
             cb(results);
@@ -2070,26 +2076,28 @@ var api = {
             var results = [];
 
             this.account.forEach(function(account) {
-                account.webProperties.forEach(function(property) {
-                    this.listApiData(account.id, property.id, function(cdList) {
-                        cdList.forEach(function(cd) {
-                            var defaults = [
-                                '',
-                                account.name,
-                                account.id,
-                                property.name,
-                                property.id,
-                                cd.name,
-                                cd.index,
-                                cd.scope,
-                                cd.active
-                            ];
-                            defaults = replaceUndefinedInArray(defaults, '');
+                try {
+                    account.webProperties.forEach(function(property) {
+                        this.listApiData(account.id, property.id, function(cdList) {
+                            cdList.forEach(function(cd) {
+                                var defaults = [
+                                    '',
+                                    account.name,
+                                    account.id,
+                                    property.name,
+                                    property.id,
+                                    cd.name,
+                                    cd.index,
+                                    cd.scope,
+                                    cd.active
+                                ];
+                                defaults = replaceUndefinedInArray(defaults, '');
 
-                            results.push(defaults);
-                        }, this);
-                    });
-                }, this);
+                                results.push(defaults);
+                            }, this);
+                        });
+                    }, this);
+                } catch (e){}
             }, this);
 
             cb(results);
