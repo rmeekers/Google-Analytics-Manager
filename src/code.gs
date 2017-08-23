@@ -3,7 +3,7 @@
  *
  * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
  * @author Rutger Meekers [rutger@meekers.eu]
- * @version 1.0
+ * @version 1.1
  * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
  *
  * Global Logger, SpreadsheetApp, HtmlService, Analytics
@@ -27,7 +27,7 @@ var colors = {
 
 var settings = {
     applicationName: 'Google Analytics Manager',
-    applicationVersion: '1.0',
+    applicationVersion: '1.1',
 };
 
 /**
