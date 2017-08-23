@@ -359,7 +359,9 @@ function getReports() {
             name: api[p].name,
             id: p
         };
-        arr.push(o);
+        if (api[p].availableForAudit == true) {
+            arr.push(o);
+        }
     }
     return JSON.stringify(arr);
 }
@@ -589,6 +591,7 @@ var sheet = {
 var api = {
     properties: {
         name: 'Properties',
+        availableForAudit: true,
         init: function(type, cb, options) {
             this.config = this.sheetColumnConfig();
 
@@ -884,6 +887,7 @@ var api = {
     },
     views: {
         name: 'Views',
+        availableForAudit: true,
         init: function(type, cb, options) {
             this.config = this.sheetColumnConfig();
 
@@ -1773,6 +1777,7 @@ var api = {
     },
     filterLinks: {
         name: 'Filter Links',
+        availableForAudit: true,
         init: function(type, cb, options) {
             this.config = this.sheetColumnConfig();
 
@@ -2034,6 +2039,7 @@ var api = {
     },
     customDimensions: {
         name: 'Custom Dimensions',
+        availableForAudit: true,
         init: function(type, cb, options) {
             this.config = this.sheetColumnConfig();
 
@@ -2255,6 +2261,7 @@ var api = {
     },
     accountSummaries: {
         name: 'Account Summaries',
+        availableForAudit: false,
         requestAccountSummaryList: function() {
             var items = Analytics.Management.AccountSummaries.list().getItems();
 
