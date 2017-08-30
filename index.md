@@ -40,15 +40,17 @@ You'll need the following:
 
 ### Installation on an existing or blank sheet
 
-1. Open the Sheet and go to *Tools > Script editor*
-2. Copy paste script files (*code.gs* and *index.html*)
-3. Go to *Resources > Advanced Google Services* and enable the *Google Analytics API*
-4. Go to *Resources > Developers Console Project*
-5. Enable the *Google Analytics* API
-6. Close the Script editor and reload the Sheet
-7. Click *Audit GA* in the menu
-8. Accept permissions
-9. You're set! Create you're first report by following the steps in the sidebar.
+1. Open your SpreadSheet and go to *Tools > Script editor*
+2. Copy paste the script file *SpreadSheet script/GoogleAnalyticsManager.gs*
+3. Go to *Resources > Libraries* and add this library `1xPVmv_Wb8_cWNyszHEEl87nopT_j5-XhWwR-ys5Fgro1cvyYBLUjLLXO`
+4. Select the latest version
+5. Go to *Resources > Advanced Google Services* and enable the *Google Analytics API*
+6. Go to *Resources > Developers Console Project*
+7. Enable the *Google Analytics* API
+8. Close the Script editor and reload the Sheet
+9. Click *Audit GA* in the menu
+10. Accept permissions
+11. You're set! Create you're first report by following the steps in the sidebar.
 
 ### Installation when using the copied sheet
 
