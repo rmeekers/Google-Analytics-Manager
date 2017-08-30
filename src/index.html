@@ -4,7 +4,7 @@
  *
  * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
  * @author Rutger Meekers [rutger@meekers.eu]
- * @version 1.0
+ * @version 1.2
  * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
  *
  */
@@ -254,7 +254,7 @@
                 google.script.run
                     .withSuccessHandler(this.success.bind(this))
                     .withFailureHandler(this.error.bind(this))
-                    .saveReportDataFromSidebar(data);
+                    .runFunction('saveReportDataFromSidebar', data);
             },
             success: function() {
                 this.close();
