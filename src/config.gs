@@ -30,4 +30,12 @@ var colors = {
 var settings = {
     applicationName: 'Google Analytics Manager',
     applicationVersion: '1.2',
+    googleOAuth2: {
+        authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
+        tokenUrl: 'https://accounts.google.com/o/oauth2/token',
+    },
+    searchConsoleApi: {
+        oauth2Scope: 'https://www.googleapis.com/auth/webmasters',
+        apiUrl: 'https://www.googleapis.com/webmasters/v3/sites/',
+    },
 };

@@ -1803,7 +1803,155 @@
 
              return items;
          }
-     }
+     },
+     searchConsoleSites: {
+         name: 'Search Console Sites',
+         availableForAudit: false,
+         init: function(type, cb, options) {
+             this.config = this.sheetColumnConfig();
+
+             switch (type) {
+                 case 'createSheet':
+                     break;
+                 case 'generateReport':
+                     break;
+                 case 'getConfig':
+                     break;
+                 case 'insertData':
+                     break;
+             }
+
+             cb();
+
+             return this;
+         },
+         /**
+          * Column and field related config properties
+          */
+         sheetColumnConfig: function() {
+             var data = [{
+                 name: 'Include',
+                 nameInApi: 'include',
+                 fieldType: 'system',
+                 dataValidation: [
+                     'Yes',
+                     'No'
+                 ]
+             }, {
+                 name: 'Site URL',
+                 nameInApi: 'siteUrl',
+                 fieldType: 'site',
+             }, {
+                 name: 'Permission Level',
+                 nameInApi: 'permissionLevel',
+                 fieldType: 'site',
+             }];
+             return createApiSheetColumnConfigArray(data);
+         },
+         listApiData: function(cb) {
+             var service = googleSearchConsoleService();
+
+            var apiURL = "https://www.googleapis.com/webmasters/v3/sites/";
+
+            var headers = {
+              "Authorization": "Bearer " + googleSearchConsoleService().getAccessToken()
+            };
+
+            var options = {
+              "headers": headers,
+              "method" : "GET",
+              "muteHttpExceptions": true
+            };
+
+            var apiResult = UrlFetchApp.fetch(apiURL, options);
+            var items = JSON.parse(apiResult).siteEntry;
+
+            var result = [];
+
+            for (var i = 0; i < items.length; i++) {
+                result.push(['', items[i].siteUrl, items[i].permissionLevel]);
+            }
+
+            //TODO: add try catch
+
+            if (typeof cb === 'function') {
+                return cb.call(this, result);
+            } else {
+                return result;
+            }
+         },
+         addApiData: function(siteUrl, cb) {
+             var service = googleSearchConsoleService();
+
+
+
+             var values = {};
+
+             var result = {};
+
+             try {
+                 if (service.hasAccess()) {
+
+                    var apiURL = "https://www.googleapis.com/webmasters/v3/sites/";
+
+                    var headers = {
+                      "Authorization": "Bearer " + googleSearchConsoleService().getAccessToken()
+                    };
+
+                    var options = {
+                      "headers": headers,
+                      "method" : "POST",
+                      "muteHttpExceptions": true
+                    };
+
+                    var urlClean = encodeURIComponent(siteUrl);
+
+                    result.call = UrlFetchApp.fetch(apiURL + urlClean, options);
+                    if (isObject(result.call)) {
+                        result.status = 'Success';
+                        //TODO: defining the type should be improved (not hardcoded?)
+                        result.insertedDataType = 'searchConsoleSite';
+                        result.message = 'Success: ' + siteUrl + ' has been added';
+                    }
+
+
+                } else {
+                    var authorizationUrl = service.getAuthorizationUrl();
+                    Logger.log('Open the following URL and re-run the script: %s', authorizationUrl);
+                    Browser.msgBox('Open the following URL and re-run the script: ' + authorizationUrl)
+                }
+
+
+             } catch (e) {
+                 result.status = 'Fail';
+                 result.message = e;
+                 registerGoogleAnalyticsHit('exception', 'filterLinks', false, 'insertApiData failed to execute: ' + e);
+             }
+
+             if (typeof cb === 'function') {
+                 return cb.call(this, result);
+             } else {
+                 return result;
+             }
+         },
+         listData: function(cb) {
+             var results;
+
+             this.listApiData(function(siteList) {
+                 results = siteList;
+             });
+
+             cb(results);
+         },
+         addData: function(insertData) {
+
+             var siteUrl = insertData[2];
+             var result = {};
+
+             return this.addApiData(siteUrl);
+
+         },
+     },
  };
 
 

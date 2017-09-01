@@ -112,8 +112,8 @@ function transposeArray(a) {
  * Toast wrapper function
  * @customfunction
  *
- * @param {string} title Message titel
- * @param {string} message Message text
+ * @param {string} title - Message titel
+ * @param {string} message - Message text
  */
 function helperToast_(title, text) {
     SpreadsheetApp.getActiveSpreadsheet().toast(text, title, 3);
