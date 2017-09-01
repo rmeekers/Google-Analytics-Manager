@@ -3,7 +3,7 @@
  *
  * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
  * @author Rutger Meekers [rutger@meekers.eu]
- * @version 1.2
+ * @version 1.5
  * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
  *
  ******************
@@ -1851,81 +1851,73 @@
          listApiData: function(cb) {
              var service = googleSearchConsoleService();
 
-            var apiURL = "https://www.googleapis.com/webmasters/v3/sites/";
+             var apiURL = 'https://www.googleapis.com/webmasters/v3/sites/';
 
-            var headers = {
-              "Authorization": "Bearer " + googleSearchConsoleService().getAccessToken()
-            };
+             var headers = {
+                 'Authorization': 'Bearer ' + googleSearchConsoleService().getAccessToken()
+             };
 
-            var options = {
-              "headers": headers,
-              "method" : "GET",
-              "muteHttpExceptions": true
-            };
+             var options = {
+                 'headers': headers,
+                 'method' : 'GET',
+                 'muteHttpExceptions': true
+             };
 
-            var apiResult = UrlFetchApp.fetch(apiURL, options);
-            var items = JSON.parse(apiResult).siteEntry;
+             var apiResult = UrlFetchApp.fetch(apiURL, options);
+             var items = JSON.parse(apiResult).siteEntry;
 
-            var result = [];
+             var result = [];
 
-            for (var i = 0; i < items.length; i++) {
-                result.push(['', items[i].siteUrl, items[i].permissionLevel]);
-            }
+             for (var i = 0; i < items.length; i++) {
+                 result.push(['', items[i].siteUrl, items[i].permissionLevel]);
+             }
 
-            //TODO: add try catch
+             //TODO: add try catch
 
-            if (typeof cb === 'function') {
-                return cb.call(this, result);
-            } else {
-                return result;
-            }
+             if (typeof cb === 'function') {
+                 return cb.call(this, result);
+             } else {
+                 return result;
+             }
          },
          addApiData: function(siteUrl, cb) {
              var service = googleSearchConsoleService();
-
-
-
-             var values = {};
-
              var result = {};
 
              try {
-                 if (service.hasAccess()) {
+                var apiURL = 'https://www.googleapis.com/webmasters/v3/sites/';
 
-                    var apiURL = "https://www.googleapis.com/webmasters/v3/sites/";
+                var headers = {
+                  'Authorization': 'Bearer ' + googleSearchConsoleService().getAccessToken()
+                };
 
-                    var headers = {
-                      "Authorization": "Bearer " + googleSearchConsoleService().getAccessToken()
-                    };
+                var options = {
+                  'headers': headers,
+                  'method' : 'PUT',
+                  'muteHttpExceptions': true
+                };
 
-                    var options = {
-                      "headers": headers,
-                      "method" : "POST",
-                      "muteHttpExceptions": true
-                    };
+                var urlClean = encodeURIComponent(siteUrl);
 
-                    var urlClean = encodeURIComponent(siteUrl);
+                result.call = UrlFetchApp.fetch(apiURL + urlClean, options);
 
-                    result.call = UrlFetchApp.fetch(apiURL + urlClean, options);
-                    if (isObject(result.call)) {
-                        result.status = 'Success';
-                        //TODO: defining the type should be improved (not hardcoded?)
-                        result.insertedDataType = 'searchConsoleSite';
-                        result.message = 'Success: ' + siteUrl + ' has been added';
-                    }
-
-
+                if (result.call.getResponseCode() == 204) {
+                    result.status = 'Success';
+                    result.insertedDataType = 'searchConsoleSite';
+                    result.message = 'Success: ' + siteUrl + ' has been added';
+                } else if (JSON.parse(result.call).error.code == '400') {
+                    var resultObject = JSON.parse(result.call);
+                    result.status = 'Fail';
+                    result.message = 'Error ' + resultObject.error.code + ': ' + resultObject.error.message;
+                    registerGoogleAnalyticsHit('exception', 'searchConsoleSites', false, 'addApiData failed to execute: ' + result.message);
                 } else {
-                    var authorizationUrl = service.getAuthorizationUrl();
-                    Logger.log('Open the following URL and re-run the script: %s', authorizationUrl);
-                    Browser.msgBox('Open the following URL and re-run the script: ' + authorizationUrl)
+                    return false;
                 }
-
 
              } catch (e) {
                  result.status = 'Fail';
                  result.message = e;
-                 registerGoogleAnalyticsHit('exception', 'filterLinks', false, 'insertApiData failed to execute: ' + e);
+                 registerGoogleAnalyticsHit('exception', 'searchConsoleSites', false, 'addApiData failed to execute: ' + e);
              }
 
              if (typeof cb === 'function') {
@@ -1943,10 +1935,9 @@
 
              cb(results);
          },
-         addData: function(insertData) {
+         insertData: function(insertData) {
 
-             var siteUrl = insertData[2];
-             var result = {};
+             var siteUrl = insertData[1];
 
              return this.addApiData(siteUrl);
 

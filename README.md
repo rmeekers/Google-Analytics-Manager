@@ -10,7 +10,7 @@ See [Issues](https://github.com/rmeekers/Google-Analytics-Manager/issues/)
 
 ## Installation
 
-> When this library was developed, write operations to the Google Analytics Management API where still in a limited beta available as developer preview. See [this page](https://developers.google.com/analytics/devguides/config/mgmt/v3/account-management) for more information and how to request access to the beta.
+See [this page](http://rutger.meekers.eu/Google-Analytics-Manager/#installation) for more information..
 
 ## Credits
-This project is based on this repository: https://github.com/nicholasblexrud/ga-auditor/
+Part of this project is based on this repository: https://github.com/nicholasblexrud/ga-auditor/

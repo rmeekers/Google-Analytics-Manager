@@ -3,7 +3,7 @@
  *
  * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
  * @author Rutger Meekers [rutger@meekers.eu]
- * @version 1.2
+ * @version 1.5
  * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
  *
  ******************
@@ -131,12 +131,17 @@ function loadMenu_() {
 
     return ui
         .createMenu('GA Manager')
-        .addItem('Audit GA', 'GoogleAnalyticsManager.showSidebar')
-        .addItem('Insert / Update Data from active sheet to GA', 'GoogleAnalyticsManager.insertData')
+        .addItem('Google Analytics: Audit', 'GoogleAnalyticsManager.showSidebar')
         .addSeparator()
-        .addItem('Autorize Google Search Console', 'GoogleAnalyticsManager.authorizeGoogleSearchConsole')
-        .addItem('List Search Console Sites', 'GoogleAnalyticsManager.listSearchConsoleSites')
+        .addItem('Insert / Update Data from active GAM sheet to GA/GSC', 'GoogleAnalyticsManager.insertData')
         .addSeparator()
+        .addItem('Google Search Console: Autorize API', 'GoogleAnalyticsManager.authorizeGoogleSearchConsole')
+        .addItem('Google Search Console: List sites', 'GoogleAnalyticsManager.listSearchConsoleSites')
+        .addItem('Google Search Console: Revoke API authorization', 'GoogleAnalyticsManager.resetGoogleSearchConsoleServiceAuth')
+        .addSeparator()
+        .addSubMenu(ui.createMenu('Settings')
+            .addItem('Set Google OAUTH Client ID', 'GoogleAnalyticsManager.setGoogleOauthClientId')
+            .addItem('Set Google OAUTH Client Secret', 'GoogleAnalyticsManager.setGoogleOauthClientSecret'))
         .addSubMenu(ui.createMenu('Advanced')
             .addItem('Insert Properties Sheet', 'GoogleAnalyticsManager.createSheetProperties')
             .addItem('Insert Views Sheet', 'GoogleAnalyticsManager.createSheetViews'))

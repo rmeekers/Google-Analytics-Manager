@@ -3,7 +3,7 @@
  *
  * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
  * @author Rutger Meekers [rutger@meekers.eu]
- * @version 1.2
+ * @version 1.5
  * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
  *
  ******************
@@ -29,10 +29,12 @@ var colors = {
 
 var settings = {
     applicationName: 'Google Analytics Manager',
-    applicationVersion: '1.2',
+    applicationVersion: '1.5',
     googleOAuth2: {
         authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/auth',
         tokenUrl: 'https://accounts.google.com/o/oauth2/token',
+        clientIdScriptPropertyKey: 'GOOGLE_OAUTH_CLIENT_ID',
+        clientSecretScriptPropertyKey: 'GOOGLE_OAUTH_CLIENT_SECRET',
     },
     searchConsoleApi: {
         oauth2Scope: 'https://www.googleapis.com/auth/webmasters',

@@ -1,8 +1,86 @@
-var doc = SpreadsheetApp.getActiveSpreadsheet();
-var s_sites = doc.getSheetByName('Websites');
+/** Google Analytics Manager
+ * Manage your Google Analytics account in batch via a Google Sheet
+ *
+ * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
+ * @author Rutger Meekers [rutger@meekers.eu]
+ * @version 1.5
+ * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
+ *
+ ******************
+ * Google Search Console API functions
+ ******************
+ */
 
-var CLIENT_ID = '718847306519-orks55oek1ithoaduqh7jnuej52tjmuq.apps.googleusercontent.com';
-var CLIENT_SECRET = 'EFVr7vNrGOIc0ehBDZlEGuGT';
+function setGoogleOauthClientId() {
+    var ui = SpreadsheetApp.getUi();
+    var scriptProperties = PropertiesService.getScriptProperties();
+    var existing = scriptProperties.getProperty(settings.googleOAuth2.clientIdScriptPropertyKey);
+
+    if (existing) {
+        var response = ui.prompt('Update existing Client ID?', existing, ui.ButtonSet.YES_NO);
+    } else {
+        var response = ui.prompt('Please enter your Client ID', ui.ButtonSet.OK);
+    }
+
+    // Process the user's response
+    if (response.getSelectedButton() == ui.Button.YES || response.getSelectedButton() == ui.Button.OK) {
+        try {
+            scriptProperties.setProperty(settings.googleOAuth2.clientIdScriptPropertyKey, response.getResponseText());
+            helperToast_('Client ID saved',response.getResponseText());
+        } catch(e) {
+            helperToast_('Client ID not saved', e);
+        }
+    } else {
+        helperToast_('Client ID not saved','');
+    }
+}
+
+function setGoogleOauthClientSecret() {
+    var ui = SpreadsheetApp.getUi();
+    var scriptProperties = PropertiesService.getScriptProperties();
+    var existing = scriptProperties.getProperty(settings.googleOAuth2.clientSecretScriptPropertyKey);
+
+    if (existing) {
+        var response = ui.prompt('Update existing Client Secret?', existing, ui.ButtonSet.YES_NO);
+    } else {
+        var response = ui.prompt('Please enter your Client Secret', ui.ButtonSet.OK);
+    }
+
+    // Process the user's response
+    if (response.getSelectedButton() == ui.Button.YES || response.getSelectedButton() == ui.Button.OK) {
+        try {
+            scriptProperties.setProperty(settings.googleOAuth2.clientSecretScriptPropertyKey, response.getResponseText());
+            helperToast_('Client Secret saved',response.getResponseText());
+        } catch(e) {
+            helperToast_('Client Secret not saved', e);
+        }
+    } else {
+        helperToast_('Client Secret not saved','');
+    }
+}
+
+function getOauthClientId() {
+    var scriptProperties = PropertiesService.getScriptProperties();
+    var existing = scriptProperties.getProperty(settings.googleOAuth2.clientIdScriptPropertyKey);
+    if (existing) {
+        return existing;
+    } else {
+        helperToast_('Client ID unknown','Please finish configuration first and try again');
+        setGoogleOauthClientId();
+    }
+}
+
+function getOauthClientSecret() {
+    var scriptProperties = PropertiesService.getScriptProperties();
+    var existing = scriptProperties.getProperty(settings.googleOAuth2.clientSecretScriptPropertyKey);
+    if (existing) {
+        return existing;
+    } else {
+        helperToast_('Client Secret unknown','Please finish configuration first and try again');
+        setGoogleOauthClientSecret();
+    }
+}
+
 
 /**
  * Create OAuth2 service for Google Search Console
@@ -13,8 +91,8 @@ function googleSearchConsoleService() {
   return OAuth2.createService('searchconsole')
       .setAuthorizationBaseUrl(settings.googleOAuth2.authorizationBaseUrl)
       .setTokenUrl(settings.googleOAuth2.tokenUrl)
-      .setClientId(CLIENT_ID)
-      .setClientSecret(CLIENT_SECRET)
+      .setClientId(getOauthClientId())
+      .setClientSecret(getOauthClientSecret())
       .setCallbackFunction('GoogleAnalyticsManager.authCallback')
       // Set the property store where authorized tokens should be persisted.
       .setPropertyStore(PropertiesService.getUserProperties())
@@ -38,70 +116,22 @@ function authCallback(request) {
   var service = googleSearchConsoleService();
   var authorized = service.handleCallback(request);
   if (authorized) {
-    return HtmlService.createHtmlOutput('Success!');
+    return HtmlService.createHtmlOutput('Access to the Google Search Console API granted. You can close this window and return to the Google Analytics Manager spreadhseet.');
   } else {
-    return HtmlService.createHtmlOutput('Denied');
+    return HtmlService.createHtmlOutput('Access to the Google Search Console API denied.');
   }
 }
 
 
 /**
- * Reset the authorization state, so that it can be re-tested.
+ * Reset the authorization state.
  */
-function reset() {
+function resetGoogleSearchConsoleServiceAuth() {
   var service = googleSearchConsoleService();
   service.reset();
+  helperToast_('','Google Search Console: API authorization revoked');
 }
 
-
-function getSite() {
-  var service = googleSearchConsoleService();
-
-  if (service.hasAccess()) {
-
-    var headers = {
-      'Authorization': 'Bearer ' + service.getAccessToken()
-    };
-
-    var options = {
-      'headers': headers,
-      'method': 'GET',
-      'muteHttpExceptions': true
-    };
-
-    //var maxRows = doc.getSheetByName('Websites').getLastRow();
-    //var urls = doc.getSheetByName('Websites').getRange(2, 1, maxRows);
-
-    var siteUrl = doc.getActiveCell().getValue();
-    var urlClean = encodeURIComponent(siteUrl);
-
-    var response = UrlFetchApp.fetch(settings.searchConsoleApi.apiUrl + urlClean, options);
-    //TODO: do something useful instead of logging :)
-    log(getSearchConsoleSiteAccessLevel(response));
-
-  } else {
-    var authorizationUrl = service.getAuthorizationUrl();
-    Logger.log('Open the following URL and re-run the script: %s', authorizationUrl);
-    Browser.msgBox('Open the following URL and re-run the script: ' + authorizationUrl)
-  }
-}
-
-
-function getSearchConsoleSiteAccessLevel(response) {
-    var result;
-    var responseContentText = JSON.parse(response.getContentText());
-    var responseCode = response.getResponseCode();
-
-    if(responseCode != '200') {
-      result = 'No Access';
-  } else if(responseContentText.siteUrl.indexOf(decodeURIComponent(urlClean)) > -1){
-      result = responseContentText.permissionLevel;
-    } else {
-      result = 'No Access';
-    }
-
-    return result;
-}
 
 /**
 * Authorize with Google Search Console
@@ -119,8 +149,13 @@ function authorizeGoogleSearchConsole() {
     Logger.log(JSON.stringify(result, null, 2));
   } else {
     var authorizationUrl = service.getAuthorizationUrl();
-    Logger.log('Open the following URL and re-run the script: %s', authorizationUrl);
-    Browser.msgBox('Open the following URL and re-run the script: ' + authorizationUrl)
+
+    var htmlOutput = HtmlService
+         .createHtmlOutput('<a href="' + authorizationUrl + '" target="_blank">' + authorizationUrl + '</p>')
+         .setWidth(250)
+         .setHeight(100);
+     SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Open URL to grant access');
+
   }
 }
 
@@ -132,7 +167,7 @@ function listSearchConsoleSites() {
     var callApi = api['searchConsoleSites'];
 
     callApi.init('generateReport', function() {
-        listData(function(data) {
+        callApi.listData(function(data) {
             // Verify if data is present
             if (data[0] === undefined || !data[0].length) {
                 throw new Error('No data found for searchConsoleSites in your account.');

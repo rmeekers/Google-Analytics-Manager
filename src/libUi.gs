@@ -3,7 +3,7 @@
  *
  * @license GNU LESSER GENERAL PUBLIC LICENSE Version 3
  * @author Rutger Meekers [rutger@meekers.eu]
- * @version 1.2
+ * @version 1.5
  * @see {@link http://rutger.meekers.eu/Google-Analytics-Manager/ Project Page}
  *
  ******************
