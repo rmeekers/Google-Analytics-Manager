@@ -1777,7 +1777,7 @@
              var account = insertData[2];
              var property = insertData[4];
              var name = insertData[5];
-             var index = 'ga:dimension' + insertData[6];
+             var index = insertData[6];
              var scope = insertData[7];
              var active = insertData[8];
              var existingData = this.getApiData(account, property, index);
